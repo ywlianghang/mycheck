@@ -1,0 +1,19 @@
+dbinfo:
+  dirverName: mysql
+  username: pcms
+  password: pcms@123
+  host: 172.16.50.161
+  port: 3306
+  database: information_schema
+  charset: utf8
+  dbConnIdleTime: 100
+  maxIdleConns: 100
+logs:
+  loglevel: info
+  outputFile:
+    logfile: D:\\goProject\\DepthInspection\\aab
+    logLevel: error
+    logMaxAge: 100
+    isConsole: false
+    rotationTime: 100
+    skip: 10
