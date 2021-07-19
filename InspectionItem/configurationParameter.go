@@ -83,9 +83,9 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckTablesDesign(aa *
 func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckColumnsDesign(aa *PublicDB.ConfigInfo){
 	ignoreTableSchema := "'mysql','information_schema','performance_schema','sys'"
 	aa.Loggs.Info("Begin a baseline check to check database columns design compliance")
-
 	strSql := fmt.Sprintf("select table_Schema databaseName,table_name tableName,column_name columnName,column_type columnType,COLUMN_KEY columnKey,EXTRA extra from information_schema.columns where table_schema not in(%s)",ignoreTableSchema)
 	cc := aa.DatabaseExecInterf.DBQueryDateJson(aa,strSql)
+	//var columnNumMap = make([]map[interface{}]int,len(cc))
 	for i := range cc {
 		//主键自增列是否为bigint
 		if cc[i]["extra"] == "auto_increment" && cc[i]["columnType"] != "bigint"{
@@ -96,19 +96,41 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckColumnsDesign(aa 
 		if cc[i]["columnType"] == "blob" || strings.Contains(ce,"text") || cc[i]["columnType"] == "timestamp"{
 			aa.Loggs.Error(fmt.Sprintf("The column data types of the current table in the database exist BLOB, TEXT, TIMESTAMP. The information is as follows: database: %s tableName: %s columnsName: %s columnType: %s.",cc[i]["databaseName"],cc[i]["tableName"],cc[i]["columnName"],cc[i]["columnType"]))
 		}
+		//var dd = make(map[string]string)
 		//表列数是否大于255
-
 	}
-
-
-
-
-	//表中是否存在ENUM列
-
-
-
 }
 //索引设计合规性
-func (baselineCheck *DatabaseBaselineCheckStruct) IndexCompliance(){}
+func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckIndexColumnDesign(aa *PublicDB.ConfigInfo){
+	ignoreTableSchema := "'mysql','information_schema','performance_schema','sys'"
+	aa.Loggs.Info("Begin by checking that index usage is reasonable and index column creation is standard")
+	strSql := fmt.Sprintf("select a.table_schema databaseName,a.table_name tableName,a.column_name columnName,a.COLUMN_TYPE columnType,a.is_nullable isNullable,b.INDEX_NAME indexName from information_schema.columns a, information_schema.STATISTICS b  where a.table_schema not in(%s) and a.COLUMN_KEY !='' and a.TABLE_NAME = b.TABLE_NAME",ignoreTableSchema)
+	cc := aa.DatabaseExecInterf.DBQueryDateJson(aa,strSql)
+	for i := range cc {
+		//判断索引列是否允许为空
+		if cc[i]["isNullable"] == "YES" {
+			aa.Loggs.Error(fmt.Sprintf("An index column is empty.The information is as follows: database: \"%s\"  tablename: \"%s\" indexName: \"%s\" columnName: \"%s\" columnType: \"%s\"",cc[i]["databaseName"],cc[i]["tableName"],cc[i]["indexName"],cc[i]["columnName"],cc[i]["columnType"]))
+		}
+
+	}
+}
 //存储过程及存储函数检查限制
-func (baselineCheck *DatabaseBaselineCheckStruct) StoredProcedureTriggerRestrictions(){}
+func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckProcedureTriggerDesign(aa *PublicDB.ConfigInfo){
+	ignoreTableSchema := "'mysql','information_schema','performance_schema','sys'"
+	aa.Loggs.Info("Begin a baseline check to checking whether the database uses stored procedures, stored functions, or triggers")
+	strSql := fmt.Sprintf("select ROUTINE_SCHEMA databaseName,ROUTINE_NAME routineName,ROUTINE_TYPE routineType,DEFINER definer,CREATED created from information_schema.routines where ROUTINE_SCHEMA not in(%s)",ignoreTableSchema)
+	cc := aa.DatabaseExecInterf.DBQueryDateJson(aa,strSql)
+	for i := range cc{
+		if cc[i]["routineType"] == "FUNCTION" || cc[i]["routineType"] == "PROCEDURE" {
+			aa.Loggs.Error(fmt.Sprintf("The current database uses a storage function or storage procedure. The information is as follows: database: \"%s\" routineName: \"%s\" user: \"%s\" create time: \"%s\"" ,cc[i]["databaseName"],cc[i]["routineName"],cc[i]["definer"],cc[i]["created"]))
+		}
+	}
+	strSql = fmt.Sprintf("select TRIGGER_SCHEMA databaseName,TRIGGER_NAME triggerName,DEFINER definer,CREATED created from information_schema.TRIGGERS where TRIGGER_SCHEMA not in (%s)",ignoreTableSchema)
+	dd := aa.DatabaseExecInterf.DBQueryDateJson(aa,strSql)
+	for i := range dd{
+		if dd[i]["triggerName"] != nil{
+			aa.Loggs.Error(fmt.Sprintf("The current database uses a trigger. The information is as follows: database: \"%s\" triggerName: \"%s\"  user: \"%s\"  create time:\"%s\"" ,dd[i]["databaseName"],dd[i]["triggerName"],dd[i]["definer"],dd[i]["created"]))
+		}
+	}
+	aa.Loggs.Info("Check whether the database is completed using stored programs, stored functions, and stored triggers")
+}

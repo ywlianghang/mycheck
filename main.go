@@ -65,10 +65,10 @@ func main() {
 
 	InspectionItem.DBConfigCheck(aa,ccc)
 	var c = &InspectionItem.DatabaseBaselineCheckStruct{}
-	//c.TableDesignCompliance(aa)
-
 	c.BaselineCheckTablesDesign(aa)
 	c.BaselineCheckColumnsDesign(aa)
+	c.BaselineCheckProcedureTriggerDesign(aa)
+	c.BaselineCheckIndexColumnDesign(aa)
 }
 
 	//var e api.ResultOutputInterface
