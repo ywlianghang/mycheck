@@ -111,8 +111,65 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckIndexColumnDesign
 		if cc[i]["isNullable"] == "YES" {
 			aa.Loggs.Error(fmt.Sprintf("An index column is empty.The information is as follows: database: \"%s\"  tablename: \"%s\" indexName: \"%s\" columnName: \"%s\" columnType: \"%s\"",cc[i]["databaseName"],cc[i]["tableName"],cc[i]["indexName"],cc[i]["columnName"],cc[i]["columnType"]))
 		}
-
+		//判断索引列是否建立在enum或set类型上面
+		if strings.Contains(fmt.Sprintf("%v",cc[i]["columnType"]),"enum") || strings.Contains(fmt.Sprintf("%v",cc[i]["columnType"]),"set"){
+			aa.Loggs.Error(fmt.Sprintf("An index column is enum or set type. The information is as follows: The information is as follows: database: \"%s\"  tablename: \"%s\" indexName: \"%s\" columnName: \"%s\" columnType: \"%s\"",cc[i]["databaseName"],cc[i]["tableName"],cc[i]["indexName"],cc[i]["columnName"],cc[i]["columnType"]))
+		}
+		//判断索引列是否建立在大字段类型上（blob、text）
+		if strings.Contains(fmt.Sprintf("%v",cc[i]["columnType"]),"blob") || strings.Contains(fmt.Sprintf("%v",cc[i]["columnType"]),"text"){
+			aa.Loggs.Error(fmt.Sprintf("An index column is blob or text type. The information is as follows: The information is as follows: database: \"%s\"  tablename: \"%s\" indexName: \"%s\" columnName: \"%s\" columnType: \"%s\"",cc[i]["databaseName"],cc[i]["tableName"],cc[i]["indexName"],cc[i]["columnName"],cc[i]["columnType"]))
+		}
 	}
+	//检查唯一索引和主键索引重复
+	//strSql = fmt.Sprintf("select table_schema databaseName,table_name tableName,non_unique noUnique,index_name indexName,column_name columnName from information_schema.STATISTICS where table_schema not in (%s)",ignoreTableSchema)
+	strSql = fmt.Sprintf("select table_schema databaseName,table_name tableName,non_unique noUnique,index_name indexName,column_name columnName from information_schema.STATISTICS where table_schema in (\"%s\")","wlkycs")
+	//strSql = fmt.Sprintf("SELECT a.TABLE_SCHEMA databaseName, a.TABLE_NAME tableName, a.COLUMN_NAME columnName,a.INDEX_NAME AS 'index1',b.INDEX_NAME as 'index2',a.SEQ_IN_INDEX seqInIndex FROM  information_schema.STATISTICS a JOIN information_schema.STATISTICS b  ON a.TABLE_SCHEMA = b.TABLE_SCHEMA  AND a.TABLE_NAME = b.TABLE_NAME  AND a.SEQ_IN_INDEX = b.SEQ_IN_INDEX  AND a.COLUMN_NAME = b.COLUMN_NAME  WHERE  a.NON_UNIQUE in (0,1) and a.SEQ_IN_INDEX = 1 AND a.INDEX_NAME <> b.INDEX_NAME")
+	dd := aa.DatabaseExecInterf.DBQueryDateJson(aa,strSql)
+	//dmap["databaseName"] = ""
+	//dmap["tableName"] = ""
+	//dmap["columnName"] = ""
+	//dmap["indexName"] = ""
+
+	var indexCloumnMerge = make([]map[string]interface{},0)
+	var columnNameString string
+	//对数据进行处理，索引列进行合并，同一库表下同一索引名尤其是复合索引下将列进行合并
+	for i := range dd{
+		fmt.Println(dd[i])
+		fmt.Println(columnNameString)
+		var dmap = make(map[string]interface{})
+		if dd[i]["databaseName"] == dmap["databaseName"] && dmap["tableName"] == dd[i]["tableName"] && dmap["indexName"] == dd[i]["indexName"]{
+			columnNameString = fmt.Sprintf("%s,%s",dmap["columnName"],dd[i]["columnName"])
+			dmap["columnName"] = columnNameString
+			indexCloumnMerge = indexCloumnMerge[:len(indexCloumnMerge)-1]
+		}else {
+			dmap["columnName"] = dd[i]["columnName"]
+		}
+		dmap["databaseName"] = dd[i]["databaseName"]
+		dmap["tableName"] = dd[i]["tableName"]
+		dmap["indexName"] = dd[i]["indexName"]
+		fmt.Println("dmap-- ",dmap)
+		indexCloumnMerge = append(indexCloumnMerge,dmap)
+		fmt.Println("indexColumnMerge-- ",indexCloumnMerge)
+	}
+	for i := range indexCloumnMerge{
+		fmt.Println(indexCloumnMerge[i])
+	}
+
+	//for i := range dd{
+	//
+	//	if dd[i]["databaseName"] == dmap["databaseName"] && dmap["tableName"] == dd[i]["tableName"] && dmap["indexName"] != dd[i]["indexName"] {
+	//		ad := fmt.Sprintf("%v",dd[i]["columnName"])
+	//		ac := fmt.Sprintf("%v",dmap["columnName"])
+	//		if strings.Contains(ad,ac) && strings.Split(ad,",")[0] == strings.Split(ac,",")[0] {
+	//			fmt.Println("出现重复索引")
+	//		}
+	//	}else {
+	//		dmap["databaseName"] = dd[i]["databaseName"]
+	//		dmap["tableName"] = dd[i]["tableName"]
+	//		dmap["columnName"] = dd[i]["columnName"]
+	//	}
+	//}
+
 }
 //存储过程及存储函数检查限制
 func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckProcedureTriggerDesign(aa *PublicDB.ConfigInfo){
