@@ -67,18 +67,24 @@ func (logg *LogStruct) logOutputFile(logglevel ,logInfo interface{}) {
 	log.AddHook(hook)
 	log.SetFormatter(logg.configLogOutputformatter())
 	log.SetReportCaller(true)
+	if logg.LoggLevel == "debug"{
+		log.SetLevel(logrus.DebugLevel)
+	}else if logg.LoggLevel == "info"{
+		log.SetLevel(logrus.InfoLevel)
+	} else if logg.LoggLevel == "warnning"{
+		log.SetLevel(logrus.WarnLevel)
+	} else if logg.LoggLevel == "error"{
+		log.SetLevel(logrus.ErrorLevel)
+	}
+
 	switch logglevel {
 		case "debug":
-			log.SetLevel(logrus.DebugLevel)
 			log.Debug(logInfo)
 		case "info":
-			log.SetLevel(logrus.InfoLevel)
 			log.Info(logInfo)
 		case "warning":
-			log.SetLevel(logrus.WarnLevel)
 			log.Warn(logInfo)
 		case "error":
-			log.SetLevel(logrus.ErrorLevel)
 			log.Error(logInfo)
 		case "fatal":
 			log.Fatal()

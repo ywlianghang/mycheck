@@ -55,6 +55,8 @@ github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXf
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
 github.com/stretchr/testify v1.4.0 h1:2E4SXV/wtOkTonXsotYi4li6zVWxYlZuYNCXe9XRJyk=
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
+github.com/tk103331/stream v0.0.0-20191019122001-158a44f25f37 h1:taQuqIAWxGREQQ0TwH+mKbP4cMOQ1p8S5gYDLh6va1Q=
+github.com/tk103331/stream v0.0.0-20191019122001-158a44f25f37/go.mod h1:Sr7nLQQwyJrBZl1gwzFzdjTn6OVkMf2ZvmvZn+LKlM0=
 github.com/vladoatanasov/logrus_amqp v0.0.0-20181023103017-b21faf6f8ae3 h1:V5MCg/nnCOwSP2cqgN/cpw6rK1o+sx1O7OEIoRVdrhI=
 github.com/vladoatanasov/logrus_amqp v0.0.0-20181023103017-b21faf6f8ae3/go.mod h1:qrexlXz/buExYYckxFqcTaM7f+WM7rN+tTwIuvVNiFY=
 go.opencensus.io v0.22.3/go.mod h1:yxeiOL68Rb0Xd1ddK5vPZ/oVn4vY4Ynel7k9FzqtOIw=
