@@ -98,6 +98,8 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckColumnsDesign(aa 
 		}
 		//var dd = make(map[string]string)
 		//表列数是否大于255
+
+
 	}
 }
 //索引设计合规性

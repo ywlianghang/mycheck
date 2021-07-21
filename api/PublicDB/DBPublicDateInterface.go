@@ -25,6 +25,8 @@ type DatabaseOperation interface {
 	DBQueryDateMap(aa *ConfigInfo,sqlStr string) map[string]string
 	//执行sql语句，返回value值
 	DBQueryDateList(aa *ConfigInfo,sqlStr string) []string
+	//执行sql语句，返回value的string值
+	DBQueryDateString(aa *ConfigInfo,sqlStr string) string
 }
 
 type DatabaseExecStruct struct {
@@ -116,5 +118,14 @@ func (dbStruct *DatabaseExecStruct) DBQueryDateMap(aa *ConfigInfo,sqlStr string)
 func (dbStruct *DatabaseExecStruct) DBQueryDateList(aa *ConfigInfo,sqlStr string) []string{
 	var a []string
 	return a
+}
+
+func (dbStruct *DatabaseExecStruct) DBQueryDateString(aa *ConfigInfo,sqlStr string) string{
+	rows := dbStruct.DBQueryDateTmp(aa,sqlStr)
+	var c string
+	for rows.Next(){
+		rows.Scan(&c)
+	}
+	return c
 }
 
