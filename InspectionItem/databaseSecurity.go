@@ -1,12 +1,12 @@
 package InspectionItem
 
 import (
-	"DepthInspection/api/PublicDB"
+	"DepthInspection/api/PublicClass"
 	"fmt"
 	"strings"
 )
 
-func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckUserPriDesign(aa *PublicDB.ConfigInfo) {
+func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckUserPriDesign(aa *PublicClass.ConfigInfo) {
 	aa.Loggs.Info("Begin to check for any vulnerabilities in database user privileges")
 	strSql := fmt.Sprintf("select user,host,authentication_string password from mysql.user")
 	cc := aa.DatabaseExecInterf.DBQueryDateJson(aa,strSql)
@@ -50,7 +50,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckUserPriDesign(aa 
 	}
 }
 
-func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckPortDesign(aa *PublicDB.ConfigInfo) {
+func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckPortDesign(aa *PublicClass.ConfigInfo) {
 	aa.Loggs.Info("Begin checking whether the current database is using the default port 3306")
 	strSql := fmt.Sprintf("show global variables like 'port'")
 	cc := aa.DatabaseExecInterf.DBQueryDateMap(aa,strSql)

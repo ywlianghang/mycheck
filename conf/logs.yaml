@@ -12,8 +12,8 @@ logs:
   loglevel: info
   outputFile:
     logfile: D:\\goProject\\DepthInspection\\aab
-    logLevel: error
+    logLevel: info
     logMaxAge: 100
-    isConsole: false
+    isConsole: true
     rotationTime: 100
     skip: 10
