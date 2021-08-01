@@ -12,10 +12,11 @@ require (
 	github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5
 	github.com/sirupsen/logrus v1.8.1
 	github.com/streadway/amqp v1.0.0 // indirect
+	github.com/tal-tech/go-zero v1.1.8 // indirect
 	//github.com/tk103331/stream v0.0.0-20191019122001-158a44f25f37 // indirect
 	github.com/vladoatanasov/logrus_amqp v0.0.0-20181023103017-b21faf6f8ae3 // indirect
 	golang.org/x/net v0.0.0-20210614182718-04defd469f4e // indirect
 	gopkg.in/olivere/elastic.v5 v5.0.86 // indirect
 	gopkg.in/sohlich/elogrus.v2 v2.0.2 // indirect
-	gopkg.in/yaml.v2 v2.2.2
+	gopkg.in/yaml.v2 v2.4.0
 )

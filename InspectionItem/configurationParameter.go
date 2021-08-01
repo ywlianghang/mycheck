@@ -1,12 +1,12 @@
 package InspectionItem
 
 import (
-	"DepthInspection/api/PublicDB"
+	"DepthInspection/api/PublicClass"
 	"fmt"
 	"strings"
 )
 
-func DBConfigCheck(aa *PublicDB.ConfigInfo,confParameterList map[string]string) (bool,string) {
+func DBConfigCheck(aa *PublicClass.ConfigInfo,confParameterList map[string]string) (bool,string) {
 	var acd bool
 	aa.Loggs.Info("Begin to check that the database configuration parameters are properly configured")
 	DBdate := aa.DatabaseExecInterf.DBQueryDateMap(aa,"show global variables")
@@ -29,7 +29,7 @@ func DBConfigCheck(aa *PublicDB.ConfigInfo,confParameterList map[string]string) 
 }
 
 //type databaseBaseLineCheckInterface interface {
-//	TableDesignCompliance(aa *PublicDB.ConfigInfo)
+//	TableDesignCompliance(aa *PublicClass.ConfigInfo)
 //}
 type DatabaseBaselineCheckStruct struct {
 	strSql string
@@ -42,7 +42,7 @@ type TableDesignComplianceStruct struct {
 	Charset interface{} `json: "charset"`
 }
 
-func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckTablesDesign(aa *PublicDB.ConfigInfo) {
+func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckTablesDesign(aa *PublicClass.ConfigInfo) {
 	//表字符集检查 ~ 	表引擎检查
 	aa.Loggs.Info("Begin a baseline check to check database table design compliance")
 	ignoreTableSchema := "'mysql','information_schema','performance_schema','sys'"
@@ -80,7 +80,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckTablesDesign(aa *
 }
 
 //列设计合规性
-func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckColumnsDesign(aa *PublicDB.ConfigInfo){
+func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckColumnsDesign(aa *PublicClass.ConfigInfo){
 	ignoreTableSchema := "'mysql','information_schema','performance_schema','sys'"
 	aa.Loggs.Info("Begin a baseline check to check database columns design compliance")
 	strSql := fmt.Sprintf("select table_Schema databaseName,table_name tableName,column_name columnName,column_type columnType,COLUMN_KEY columnKey,EXTRA extra from information_schema.columns where table_schema not in(%s)",ignoreTableSchema)
@@ -103,7 +103,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckColumnsDesign(aa 
 	}
 }
 //索引设计合规性
-func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckIndexColumnDesign(aa *PublicDB.ConfigInfo){
+func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckIndexColumnDesign(aa *PublicClass.ConfigInfo){
 	ignoreTableSchema := "'mysql','information_schema','performance_schema','sys'"
 	aa.Loggs.Info("Begin by checking that index usage is reasonable and index column creation is standard")
 	strSql := fmt.Sprintf("select a.table_schema databaseName,a.table_name tableName,a.column_name columnName,a.COLUMN_TYPE columnType,a.is_nullable isNullable,b.INDEX_NAME indexName from information_schema.columns a, information_schema.STATISTICS b  where a.table_schema not in(%s) and a.COLUMN_KEY !='' and a.TABLE_NAME = b.TABLE_NAME",ignoreTableSchema)
@@ -165,7 +165,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckIndexColumnDesign
 
 }
 //存储过程及存储函数检查限制
-func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckProcedureTriggerDesign(aa *PublicDB.ConfigInfo){
+func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckProcedureTriggerDesign(aa *PublicClass.ConfigInfo){
 	ignoreTableSchema := "'mysql','information_schema','performance_schema','sys'"
 	aa.Loggs.Info("Begin a baseline check to checking whether the database uses stored procedures, stored functions, or triggers")
 	strSql := fmt.Sprintf("select ROUTINE_SCHEMA databaseName,ROUTINE_NAME routineName,ROUTINE_TYPE routineType,DEFINER definer,CREATED created from information_schema.routines where ROUTINE_SCHEMA not in(%s)",ignoreTableSchema)

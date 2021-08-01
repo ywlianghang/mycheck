@@ -1,6 +1,7 @@
-package PublicDB
+package PublicClass
 
 import (
+	"DepthInspection/api/Stream"
 	"DepthInspection/api/loggs"
 	"database/sql"
 	"fmt"
@@ -12,6 +13,7 @@ type ConfigInfo struct {
 	GetConfig          loggs.BaseInfo
 	DatabaseExecInterf DatabaseOperation
 	Loggs              loggs.LogOutputInterface
+	Streamm            *Stream.StreamStruct
 }
 
 type DatabaseOperation interface {

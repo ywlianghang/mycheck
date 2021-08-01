@@ -43,7 +43,7 @@ func (logg *LogStruct) Debug(args ...interface{}){
 	logg.logOutputFile("debug",args)
 }
 func (logg *LogStruct) Warn(args ...interface{}){
-	logg.logOutputFile("warn",args)
+	logg.logOutputFile("warning",args)
 }
 func (logg *LogStruct) Error(args ...interface{}){
 	logg.logOutputFile("error",args)
@@ -71,7 +71,7 @@ func (logg *LogStruct) logOutputFile(logglevel ,logInfo interface{}) {
 		log.SetLevel(logrus.DebugLevel)
 	}else if logg.LoggLevel == "info"{
 		log.SetLevel(logrus.InfoLevel)
-	} else if logg.LoggLevel == "warnning"{
+	} else if logg.LoggLevel == "warning"{
 		log.SetLevel(logrus.WarnLevel)
 	} else if logg.LoggLevel == "error"{
 		log.SetLevel(logrus.ErrorLevel)

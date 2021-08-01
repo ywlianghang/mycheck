@@ -2,13 +2,14 @@ package main
 
 import (
 	"DepthInspection/InspectionItem"
-	"DepthInspection/api/PublicDB"
+	"DepthInspection/api/PublicClass"
+	"DepthInspection/api/Stream"
 	"DepthInspection/api/loggs"
 	"fmt"
 )
 
 
-func ConfigInit() *PublicDB.ConfigInfo {
+func ConfigInit() *PublicClass.ConfigInfo {
 	info := loggs.BaseInfo{}
 	conf := info.GetConf()
 	connInfo := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s",conf.DBinfo.Username,conf.DBinfo.Password,
@@ -21,18 +22,19 @@ func ConfigInit() *PublicDB.ConfigInfo {
 		IsConsole: conf.Logs.OutputFile.IsConsole,
 		LogMaxAge: conf.Logs.OutputFile.LogMaxAge,
 	}
-	var dbconfig = &PublicDB.DatabaseExecStruct{
+	var dbconfig = &PublicClass.DatabaseExecStruct{
 		MaxIdleConns: conf.DBinfo.MaxIdleConns,
 		DirverName: conf.DBinfo.DirverName,
 		DBconnIdleTime: conf.DBinfo.DBconnIdleTime,
 		ConnInfo: connInfo,
 	}
-	var confaa = &PublicDB.ConfigInfo{
+	var stream = &Stream.StreamStruct{}
+	confaa := &PublicClass.ConfigInfo{
 		DatabaseExecInterf: dbconfig,
-		Loggs: logconfig,
+		Loggs:              logconfig,
+		Streamm:            stream,
 	}
 	return confaa
-
 }
 
 func main() {
@@ -71,8 +73,6 @@ func main() {
 	c.BaselineCheckIndexColumnDesign(aa)
 	c.BaselineCheckUserPriDesign(aa)
 	c.BaselineCheckPortDesign(aa)
+	c.DatabaseBinlogdesign(aa)
+	c.DatabaseTableIndexCheck(aa)
 }
-
-	//var e api.ResultOutputInterface
-	//e = &api.ResultOutputStruct{}
-	//e.OutputLog()
