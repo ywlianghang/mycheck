@@ -6,6 +6,7 @@ require (
 	github.com/antonfisher/nested-logrus-formatter v1.3.1
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/jonboulle/clockwork v0.2.2 // indirect
+	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/lestrrat-go/strftime v1.0.4 // indirect
 	github.com/pkg/errors v0.9.1
