@@ -11,7 +11,7 @@ dbinfo:
 logs:
   loglevel: info
   outputFile:
-    logfile: D:\\goProject\\DepthInspection\\aab
+    logfile: D:\\goProject\\DepthInspection\\log\\aab
     logLevel: info
     logMaxAge: 100
     isConsole: true

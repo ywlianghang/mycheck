@@ -1,34 +1,27 @@
 package PublicClass
 
 import (
-	"DepthInspection/api/Stream"
-	"DepthInspection/api/loggs"
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"os"
 	"time"
 )
-type ConfigInfo struct {
-	GetConfig          loggs.BaseInfo
-	DatabaseExecInterf DatabaseOperation
-	Loggs              loggs.LogOutputInterface
-	Streamm            *Stream.StreamStruct
-}
+
 
 type DatabaseOperation interface {
 	//连接数据库，返回dbConnSocket信息
-	dbConnSocket(aa *ConfigInfo)
+	dbConnSocket()
 	//执行sql语句，返回列及原始数据类型（包含列及值）
-	DBQueryDateTmp(aa *ConfigInfo,sqlStr string) *sql.Rows
+	DBQueryDateTmp(sqlStr string) *sql.Rows
 	//执行sql语句，返回json数据类型（包含列及值）
-	DBQueryDateJson(aa *ConfigInfo,sqlStr string) []map[string]interface{}
+	DBQueryDateJson(sqlStr string) []map[string]interface{}
 	//执行sql语句，返回map数据类型（包含列及值）
-	DBQueryDateMap(aa *ConfigInfo,sqlStr string) map[string]string
+	DBQueryDateMap(sqlStr string) map[string]string
 	//执行sql语句，返回value值
-	DBQueryDateList(aa *ConfigInfo,sqlStr string) []string
+	DBQueryDateList(sqlStr string) []string
 	//执行sql语句，返回value的string值
-	DBQueryDateString(aa *ConfigInfo,sqlStr string) string
+	DBQueryDateString(sqlStr string) string
 }
 
 type DatabaseExecStruct struct {
@@ -39,11 +32,20 @@ type DatabaseExecStruct struct {
 	dbConnSocketinfo *sql.DB
 }
 
-func (dbStruct *DatabaseExecStruct) dbConnSocket(aa *ConfigInfo){
-	db ,_ := sql.Open(dbStruct.DirverName,dbStruct.ConnInfo)
-	aa.Loggs.Debug("Initializes the database connection object")
+func (dbStruct *DatabaseExecStruct) dbConnSocket(){
+	Loggs.Debug("Initializes the database connection object")
+	db ,err := sql.Open(dbStruct.DirverName,dbStruct.ConnInfo)
+	if err != nil{
+		errStr := fmt.Sprintf("unknown driver %q (forgotten import?)", dbStruct.DirverName)
+		fmt.Println(errStr)
+		Loggs.Error(errStr)
+		os.Exit(1)
+	}
+	Loggs.Debug("Send a ping packet to check the database running status")
 	if err := db.Ping(); err != nil {
-		aa.Loggs.Error("Failed to open a database connection and create a session connection. error info: ",err)
+		errStr := "Failed to open a database connection and create a session connection. pleace Check the database status or network status"
+        fmt.Println(errStr)
+		Loggs.Error(errStr)
 		os.Exit(1)
 	}
 	db.SetConnMaxIdleTime(dbStruct.DBconnIdleTime)
@@ -51,25 +53,29 @@ func (dbStruct *DatabaseExecStruct) dbConnSocket(aa *ConfigInfo){
 	dbStruct.dbConnSocketinfo = db
 }
 
-func (dbStruct *DatabaseExecStruct) DBQueryDateTmp(aa *ConfigInfo,sqlStr string) *sql.Rows{
-	dbStruct.dbConnSocket(aa)
+func (dbStruct *DatabaseExecStruct) DBQueryDateTmp(sqlStr string) *sql.Rows{
+	dbStruct.dbConnSocket()
 	dbconn := dbStruct.dbConnSocketinfo
+	Loggs.Debug(fmt.Sprintf("Prepare initialize the SQL statement:%s",sqlStr))
 	stmt,err := dbconn.Prepare(sqlStr)
-	aa.Loggs.Debug(fmt.Sprintf("Prepare initialize the SQL statement:%s",sqlStr))
-	rows,err := stmt.Query()
-	aa.Loggs.Debug(fmt.Sprintf("Execute SQL statement queries: %s",sqlStr))
-	if err != nil{
-		aa.Loggs.Error(fmt.Sprintf("Execute SQL file ,This is a bad connection. SQL info: %s",sqlStr))
+	if err != nil {
+		Loggs.Error(fmt.Sprintf("Prepare SQL file ,This is a bad connection. SQL info: %s",sqlStr))
 	}
-	dbconn.Ping()
+	Loggs.Debug(fmt.Sprintf("Execute SQL statement queries: %s",sqlStr))
+	rows,err := stmt.Query()
+	if err != nil{
+		Loggs.Error(fmt.Sprintf("Execute SQL file ,This is a bad connection. SQL info: %s",sqlStr))
+	}
 	return rows
 }
-func (dbStruct *DatabaseExecStruct) DBQueryDateJson(aa *ConfigInfo,sqlStr string) []map[string]interface{}{
-	rows := dbStruct.DBQueryDateTmp(aa ,sqlStr)
+
+// 查询数据库，返回数据库接口切片，或返回json（包含列名）
+func (dbStruct *DatabaseExecStruct) DBQueryDateJson(sqlStr string) []map[string]interface{}{
+	rows := dbStruct.DBQueryDateTmp(sqlStr)
 	// 获取列名
 	columns,err := rows.Columns()
 	if err != nil {
-		aa.Loggs.Error("Failed to get database column name. The failure information is as follows:",err)
+		Loggs.Error("Failed to get database column name. The failure information is as follows:",err)
 	}
 	// 定义一个切片，长度是字段的个数，切片里面的元素类型是sql.RawBytes
 	//values := make([]sql.RawBytes,len(columns))
@@ -100,8 +106,9 @@ func (dbStruct *DatabaseExecStruct) DBQueryDateJson(aa *ConfigInfo,sqlStr string
 	return tableData
 }
 
-func (dbStruct *DatabaseExecStruct) DBQueryDateMap(aa *ConfigInfo,sqlStr string) map[string]string{
-	rows := dbStruct.DBQueryDateTmp(aa,sqlStr)
+//查询数据库，结果集为两列，切第一列的数据是第二列的key，对列数据生成key-value并返回（不包含列名）
+func (dbStruct *DatabaseExecStruct) DBQueryDateMap(sqlStr string) map[string]string{
+	rows := dbStruct.DBQueryDateTmp(sqlStr)
 	var result map[string]string
 	result = make(map[string]string)
 	var key_slice,val_slice []string
@@ -117,13 +124,15 @@ func (dbStruct *DatabaseExecStruct) DBQueryDateMap(aa *ConfigInfo,sqlStr string)
 	return result
 }
 
-func (dbStruct *DatabaseExecStruct) DBQueryDateList(aa *ConfigInfo,sqlStr string) []string{
+//查询数据库，返回多行多列数据（不包含列名）
+func (dbStruct *DatabaseExecStruct) DBQueryDateList(sqlStr string) []string{
 	var a []string
 	return a
 }
 
-func (dbStruct *DatabaseExecStruct) DBQueryDateString(aa *ConfigInfo,sqlStr string) string{
-	rows := dbStruct.DBQueryDateTmp(aa,sqlStr)
+//查询数据库，返回单行单列数据（列名）
+func (dbStruct *DatabaseExecStruct) DBQueryDateString(sqlStr string) string{
+	rows := dbStruct.DBQueryDateTmp(sqlStr)
 	var c string
 	for rows.Next(){
 		rows.Scan(&c)

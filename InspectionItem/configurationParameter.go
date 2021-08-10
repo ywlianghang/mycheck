@@ -1,36 +1,43 @@
 package InspectionItem
 
 import (
-	"DepthInspection/api/PublicClass"
+	pub "DepthInspection/api/PublicClass"
 	"fmt"
 	"strings"
 )
 
-func DBConfigCheck(aa *PublicClass.ConfigInfo,confParameterList map[string]string) (bool,string) {
-	var acd bool
-	aa.Loggs.Info("Begin to check that the database configuration parameters are properly configured")
-	DBdate := aa.DatabaseExecInterf.DBQueryDateMap(aa,"show global variables")
+//配置参数检查功能
+func DatabaseConfigCheck(confParameterList map[string]string)  {
+	pub.Loggs.Info("Begin to check that the database configuration parameters are properly configured")
 	var configVariablesName ,configValue string
 	for i := range confParameterList{
 		configVariablesName = i
 		configValue = confParameterList[i]
-		aa.Loggs.Debug("Start checking database parameters ",configVariablesName)
-		a,ok := DBdate[configVariablesName]
+		pub.Loggs.Debug("Start checking database parameters ",configVariablesName)
+		a,ok := pub.GlobalVariables[configVariablesName]
 		if !ok {
-			aa.Loggs.Error("The current data configuration parameter does not exist. Please check if it is incorrectly typed")
+			pub.Loggs.Error("The current data configuration parameter does not exist. Please check if it is incorrectly typed")
 		}
+		d  := make(map[string]string)
+		d["configVariableName"] = configVariablesName
+		d["configVariable"] = a
+		d["configVariableAdvice"] = configValue
+		d["checkStatus"] = "normal"    //正常
+		d["checkType"] = "configParameter"
 		if !strings.EqualFold(a,configValue) {
+			d["checkStatus"] = "abnormal"    //异常
+			d["checkType"] = "configParameter"
 			errorStrinfo := fmt.Sprintf("检测当前数据库配置参数为 %s 不符合预定要求! 当前值为 %s 建议设置成 %s",configVariablesName,a,configValue)
-			aa.Loggs.Error(errorStrinfo)
+			pub.Loggs.Error(errorStrinfo)
 		}
+		pub.InspectionResult.DatabaseConfigCheck.ConfigParameter = append(pub.InspectionResult.DatabaseConfigCheck.ConfigParameter,d)
 	}
-	aa.Loggs.Info("The check database configuration parameters are complete")
-	return acd,configValue
+
+	pub.Loggs.Info("The check database configuration parameters are complete")
 }
 
-//type databaseBaseLineCheckInterface interface {
-//	TableDesignCompliance(aa *PublicClass.ConfigInfo)
-//}
+
+
 type DatabaseBaselineCheckStruct struct {
 	strSql string
 	ignoreTableSchema string
@@ -42,145 +49,306 @@ type TableDesignComplianceStruct struct {
 	Charset interface{} `json: "charset"`
 }
 
-func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckTablesDesign(aa *PublicClass.ConfigInfo) {
+func newMap(source map[string]string) map[string]string {
+	var n = make(map[string]string)
+	for k,v := range source {
+		n[k]=v
+	}
+	return n
+}
+//数据库的基线检查功能--检查表设计合规性
+//检查表字符集是否为utf8
+func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckTablesDesign() {
 	//表字符集检查 ~ 	表引擎检查
-	aa.Loggs.Info("Begin a baseline check to check database table design compliance")
-	ignoreTableSchema := "'mysql','information_schema','performance_schema','sys'"
-	strSql := fmt.Sprintf("select t.table_schema databaseName,t.table_name tableName,lower(engine) engine,lower(c.CHARACTER_SET_NAME) charset from information_schema.tables as t, information_schema.COLLATIONS as c where t.TABLE_COLLATION=c.COLLATION_NAME and t.table_schema not in (%s)",ignoreTableSchema)
-	cc := aa.DatabaseExecInterf.DBQueryDateJson(aa,strSql)
-	for i := range cc{
-		//表字符集检查
-		charsetSt := fmt.Sprintf("%v",cc[i]["charset"])
-		if !strings.Contains(charsetSt,"utf8"){
-			aa.Loggs.Error(fmt.Sprintf("The current table character set is not UTF8 or UTF8MB4 character. error info: Database is %s table is %s table charset is %s ",cc[i]["databaseName"],cc[i]["tableName"],cc[i]["charset"]))
+	pub.Loggs.Info("Begin a baseline check to check database table design compliance")
+	var tableCharset string
+	//字符集处理,生成字符集对应表
+	var tmpCharsetCorrespondingTable = make(map[string]string)   //字符集对应表
+	informationSchemaCollationsData := pub.InformationSchemaCollationsData
+	for k := range informationSchemaCollationsData {
+		ac := informationSchemaCollationsData[k]["COLLATION_NAME"].(string)
+		ad := informationSchemaCollationsData[k]["CHARACTER_SET_NAME"].(string)
+		tmpCharsetCorrespondingTable[ac] = ad
+	}
+	for i := range pub.InformationSchemaTablesData{
+		var d = make(map[string]string)
+		if pub.InformationSchemaTablesData[i]["TABLE_COLLATION"] != nil{
+			if _,ok := tmpCharsetCorrespondingTable[pub.InformationSchemaTablesData[i]["TABLE_COLLATION"].(string)];ok {
+				tableCharset = tmpCharsetCorrespondingTable[pub.InformationSchemaTablesData[i]["TABLE_COLLATION"].(string)]
+			}
 		}
-		//表引擎检查
-		if cc[i]["engine"] != "innodb"{
-			aa.Loggs.Error(fmt.Sprintf("The current table engine set is not innodb engine. error info: Database is %s table is %s table engine is %s ",cc[i]["databaseName"],cc[i]["tableName"],cc[i]["engine"]))
+		//表字符集检查
+		d["database"] = pub.InformationSchemaTablesData[i]["TABLE_SCHEMA"].(string)
+		d["tableName"] = pub.InformationSchemaTablesData[i]["TABLE_NAME"].(string)
+		if !strings.Contains(tableCharset, "utf8"){
+			d["charset"] = tableCharset
+			d["checkStatus"] = "abnormal"    //异常
+			d["checkType"] = "tableCharset"
+			pub.InspectionResult.BaselineCheckTablesDesign.TableCharset = append(pub.InspectionResult.BaselineCheckTablesDesign.TableCharset,d)
+			pub.Loggs.Error(fmt.Sprintf("The current table character set is not UTF8 or UTF8MB4 character. error info: Database is %s table is %s table charset is %s ",pub.InformationSchemaTablesData[i]["TABLE_SCHEMA"],pub.InformationSchemaTablesData[i]["TABLE_NAME"],tableCharset))
+		}else{
+			d["charset"] = tableCharset
+			d["checkStatus"] = "normal"    //异常
+			d["checkType"] = "tableCharset"
+			pub.InspectionResult.BaselineCheckTablesDesign.TableCharset = append(pub.InspectionResult.BaselineCheckTablesDesign.TableCharset,d)
+		}
+		//检查引擎不是innodb的
+		m := newMap(d)
+		if  pub.InformationSchemaTablesData[i]["ENGINE"] != nil && !strings.EqualFold(pub.InformationSchemaTablesData[i]["ENGINE"].(string),"innodb"){
+			m["checkStatus"] = "abnormal"
+			m["checkType"] = "tableEngine"
+			pub.InspectionResult.BaselineCheckTablesDesign.TableEngine = append(pub.InspectionResult.BaselineCheckTablesDesign.TableEngine,m)
+			pub.Loggs.Error(fmt.Sprintf("The current table engine set is not innodb engine. error info: Database is %s table is %s table engine is %s ",pub.InformationSchemaTablesData[i]["TABLE_SCHEM"],pub.InformationSchemaTablesData[i]["TABLE_NAME"],pub.InformationSchemaTablesData[i]["ENGINE"]))
+		}
+		if pub.InformationSchemaTablesData[i]["ENGINE"] != nil && strings.EqualFold(pub.InformationSchemaTablesData[i]["ENGINE"].(string),"innodb"){
+			m["checkType"] = "tableEngine"
+			m["checkStatus"] = "normal"
+			pub.InspectionResult.BaselineCheckTablesDesign.TableEngine = append(pub.InspectionResult.BaselineCheckTablesDesign.TableEngine,m)
 		}
 	}
+
 	//检查表是否使用外键
-	strSql = fmt.Sprintf("select CONSTRAINT_SCHEMA databaseName,TABLE_NAME tableName,COLUMN_NAME columnName,CONSTRAINT_NAME, REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME from INFORMATION_SCHEMA.KEY_COLUMN_USAGE where CONSTRAINT_SCHEMA not in (%s)",ignoreTableSchema)
-	dd := aa.DatabaseExecInterf.DBQueryDateJson(aa,strSql)
-	for i := range dd {
-		if dd[i]["REFERENCED_TABLE_NAME"] != nil && dd[i]["REFERENCED_COLUMN_NAME"] != nil {
-			aa.Loggs.Error(fmt.Sprintf("The current table uses a foreign key constraint. The information is as follows: database: %s " +
+	for i := range pub.InformationSchemaKeyColumnUsage {
+		var d = make(map[string]string)
+		d["database"] = pub.InformationSchemaKeyColumnUsage[i]["databaseName"].(string)
+		d["tableName"] = pub.InformationSchemaKeyColumnUsage[i]["tableName"].(string)
+		d["checkType"] = "tableForeign"
+		d["checkStatus"] = "normal"    //正常
+		if pub.InformationSchemaKeyColumnUsage[i]["REFERENCED_TABLE_NAME"] != nil && pub.InformationSchemaKeyColumnUsage[i]["REFERENCED_COLUMN_NAME"] != nil {
+			d["checkStatus"] = "abnormal"    //异常
+			d["columnName"] = pub.InformationSchemaKeyColumnUsage[i]["columnName"].(string)
+			d["constraintName"] = pub.InformationSchemaKeyColumnUsage[i]["CONSTRAINT_NAME"].(string)
+			d["referencedTableName"] = pub.InformationSchemaKeyColumnUsage[i]["REFERENCED_TABLE_NAME"].(string)
+			d["referencedColumnName"] = pub.InformationSchemaKeyColumnUsage[i]["REFERENCED_COLUMN_NAME"].(string)
+			pub.Loggs.Error(fmt.Sprintf("The current table uses a foreign key constraint. The information is as follows: database: %s " +
 				"tableName: %s column: %s Foreign key constraint name: %s Foreign key constraints table: %s" +
-				"Foreign key constraints columns: %s",dd[i]["databaseName"],dd[i]["tableName"],dd[i]["columnName"],dd[i]["CONSTRAINT_NAME"],dd[i]["REFERENCED_TABLE_NAME"],dd[i]["REFERENCED_COLUMN_NAME"]))
+				"Foreign key constraints columns: %s",pub.InformationSchemaKeyColumnUsage[i]["databaseName"],pub.InformationSchemaKeyColumnUsage[i]["tableName"],pub.InformationSchemaKeyColumnUsage[i]["columnName"],pub.InformationSchemaKeyColumnUsage[i]["CONSTRAINT_NAME"],pub.InformationSchemaKeyColumnUsage[i]["REFERENCED_TABLE_NAME"],pub.InformationSchemaKeyColumnUsage[i]["REFERENCED_COLUMN_NAME"]))
 		}
+		pub.InspectionResult.BaselineCheckTablesDesign.TableForeign = append(pub.InspectionResult.BaselineCheckTablesDesign.TableForeign,d)
 	}
 	//检查没有主键的表
-	strSql = fmt.Sprintf("select table_schema databaseName, table_name tableName from information_schema.tables where table_name not in (select distinct table_name from information_schema.columns where column_key = 'PRI' ) AND table_schema not in (%s)",ignoreTableSchema)
-	ee := aa.DatabaseExecInterf.DBQueryDateJson(aa,strSql)
-	for i := range ee{
-		if ee[i] != nil{
-			aa.Loggs.Error(fmt.Sprintf("The current table has no primary key index. The information is as follows: database: %s tableName: %s" ,ee[i]["databaseName"],ee[i]["tableName"]))
+	var ke,vl string
+	for v :=range pub.InformationSchemaColumnsData{
+		var dd = make(map[string]string)
+		dd["database"] = pub.InformationSchemaColumnsData[v]["TABLE_SCHEMA"].(string)
+		dd["tableName"] = pub.InformationSchemaColumnsData[v]["TABLE_NAME"].(string)
+		dd["checkType"] = "tableNoPrimaryKey"
+		if pub.InformationSchemaColumnsData[v]["COLUMN_KEY"] == "PRI" {
+			dd["checkStatus"] = "normal"    //正常
+			pub.InspectionResult.BaselineCheckTablesDesign.TableNoPrimaryKey = append(pub.InspectionResult.BaselineCheckTablesDesign.TableNoPrimaryKey,dd)
+		}else{
+			if ke != pub.InformationSchemaColumnsData[v]["TABLE_SCHEMA"].(string) || vl != pub.InformationSchemaColumnsData[v]["TABLE_NAME"].(string){
+				dd["checkStatus"] = "abnormal"    //异常
+				pub.InspectionResult.BaselineCheckTablesDesign.TableNoPrimaryKey = append(pub.InspectionResult.BaselineCheckTablesDesign.TableNoPrimaryKey,dd)
+			}
 		}
+		ke = pub.InformationSchemaColumnsData[v]["TABLE_SCHEMA"].(string)
+		vl = pub.InformationSchemaColumnsData[v]["TABLE_NAME"].(string)
 	}
 }
 
 //列设计合规性
-func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckColumnsDesign(aa *PublicClass.ConfigInfo){
-	ignoreTableSchema := "'mysql','information_schema','performance_schema','sys'"
-	aa.Loggs.Info("Begin a baseline check to check database columns design compliance")
-	strSql := fmt.Sprintf("select table_Schema databaseName,table_name tableName,column_name columnName,column_type columnType,COLUMN_KEY columnKey,EXTRA extra from information_schema.columns where table_schema not in(%s)",ignoreTableSchema)
-	cc := aa.DatabaseExecInterf.DBQueryDateJson(aa,strSql)
-	//var columnNumMap = make([]map[interface{}]int,len(cc))
-	for i := range cc {
+func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckColumnsDesign(){
+	pub.Loggs.Info("Begin a baseline check to check database columns design compliance")
+	for i := range pub.InformationSchemaColumnsData {
+		var d = make(map[string]string)
+		d["database"] = pub.InformationSchemaColumnsData[i]["TABLE_SCHEMA"].(string)
+		d["tableName"] = pub.InformationSchemaColumnsData[i]["TABLE_NAME"].(string)
+		d["columnName"] = pub.InformationSchemaColumnsData[i]["COLUMN_NAME"].(string)
+		d["columnType"] = pub.InformationSchemaColumnsData[i]["COLUMN_TYPE"].(string)
 		//主键自增列是否为bigint
-		if cc[i]["extra"] == "auto_increment" && cc[i]["columnType"] != "bigint"{
-			aa.Loggs.Error(fmt.Sprintf("The primary key column is not of type Bigint. The information is as follows: database: %s tableName: %s columnsName: %s columnType: %s.", cc[i]["databaseName"],cc[i]["tableName"],cc[i]["columnName"],cc[i]["columnType"]))
-		}
-		//表中是否存在大字段blob、text、varchar(8099)、timestamp数据类型
-		ce := fmt.Sprintf("%v",cc[i]["columnType"])
-		if cc[i]["columnType"] == "blob" || strings.Contains(ce,"text") || cc[i]["columnType"] == "timestamp"{
-			aa.Loggs.Error(fmt.Sprintf("The column data types of the current table in the database exist BLOB, TEXT, TIMESTAMP. The information is as follows: database: %s tableName: %s columnsName: %s columnType: %s.",cc[i]["databaseName"],cc[i]["tableName"],cc[i]["columnName"],cc[i]["columnType"]))
+		if pub.InformationSchemaColumnsData[i]["EXTRA"] == "auto_increment"{
+			if  !strings.Contains(pub.InformationSchemaColumnsData[i]["COLUMN_TYPE"].(string),"bigint"){
+				d["checkStatus"] = "abnormal"    //异常
+				d["checkType"] = "tableAutoIncrement"
+				pub.InspectionResult.BaselineCheckColumnsDesign.TableAutoIncrement = append(pub.InspectionResult.BaselineCheckColumnsDesign.TableAutoIncrement,d)
+				pub.Loggs.Error(fmt.Sprintf("The primary key column is not of type Bigint. The information is as follows: database: %s tableName: %s columnsName: %s columnType: %s.", pub.InformationSchemaColumnsData[i]["TABLE_SCHEMA"],pub.InformationSchemaColumnsData[i]["TABLE_NAME"],pub.InformationSchemaColumnsData[i]["COLUMN_NAME"],pub.InformationSchemaColumnsData[i]["COLUMN_TYPE"]))
+			}else {
+				d["checkStatus"] = "normal"    //异常
+				d["checkType"] = "tableAutoIncrement"
+				pub.InspectionResult.BaselineCheckColumnsDesign.TableAutoIncrement = append(pub.InspectionResult.BaselineCheckColumnsDesign.TableAutoIncrement,d)
+			}
+		}else {
+			//表中是否存在大字段blob、text、varchar(8099)、timestamp数据类型
+			m := newMap(d)
+			if pub.InformationSchemaColumnsData[i]["COLUMN_TYPE"] != nil {
+				ce := pub.InformationSchemaColumnsData[i]["COLUMN_TYPE"].(string)
+				if ce == "blob" || strings.Contains(ce, "text") || ce == "timestamp" {
+					m["checkStatus"] = "abnormal" //异常
+					m["checkType"] = "tableBigColumns"
+					pub.InspectionResult.BaselineCheckColumnsDesign.TableBigColumns = append(pub.InspectionResult.BaselineCheckColumnsDesign.TableBigColumns, m)
+					pub.Loggs.Error(fmt.Sprintf("The column data types of the current table in the database exist BLOB, TEXT, TIMESTAMP. The information is as follows: database: %s tableName: %s columnsName: %s columnType: %s.", pub.InformationSchemaColumnsData[i]["TABLE_SCHEMA"], pub.InformationSchemaColumnsData[i]["TABLE_NAME"], pub.InformationSchemaColumnsData[i]["COLUMN_NAME"], pub.InformationSchemaColumnsData[i]["COLUMN_TYPE"]))
+				} else {
+					m["checkStatus"] = "normal" //正常
+					m["checkType"] = "tableBigColumns"
+					pub.InspectionResult.BaselineCheckColumnsDesign.TableBigColumns = append(pub.InspectionResult.BaselineCheckColumnsDesign.TableBigColumns, m)
+				}
+			}
 		}
 		//var dd = make(map[string]string)
 		//表列数是否大于255
-
-
 	}
 }
+
 //索引设计合规性
-func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckIndexColumnDesign(aa *PublicClass.ConfigInfo){
-	ignoreTableSchema := "'mysql','information_schema','performance_schema','sys'"
-	aa.Loggs.Info("Begin by checking that index usage is reasonable and index column creation is standard")
-	strSql := fmt.Sprintf("select a.table_schema databaseName,a.table_name tableName,a.column_name columnName,a.COLUMN_TYPE columnType,a.is_nullable isNullable,b.INDEX_NAME indexName from information_schema.columns a, information_schema.STATISTICS b  where a.table_schema not in(%s) and a.COLUMN_KEY !='' and a.TABLE_NAME = b.TABLE_NAME",ignoreTableSchema)
-	cc := aa.DatabaseExecInterf.DBQueryDateJson(aa,strSql)
-	for i := range cc {
-		//判断索引列是否允许为空
-		if cc[i]["isNullable"] == "YES" {
-			aa.Loggs.Error(fmt.Sprintf("An index column is empty.The information is as follows: database: \"%s\"  tablename: \"%s\" indexName: \"%s\" columnName: \"%s\" columnType: \"%s\"",cc[i]["databaseName"],cc[i]["tableName"],cc[i]["indexName"],cc[i]["columnName"],cc[i]["columnType"]))
-		}
-		//判断索引列是否建立在enum或set类型上面
-		if strings.Contains(fmt.Sprintf("%v",cc[i]["columnType"]),"enum") || strings.Contains(fmt.Sprintf("%v",cc[i]["columnType"]),"set"){
-			aa.Loggs.Error(fmt.Sprintf("An index column is enum or set type. The information is as follows: The information is as follows: database: \"%s\"  tablename: \"%s\" indexName: \"%s\" columnName: \"%s\" columnType: \"%s\"",cc[i]["databaseName"],cc[i]["tableName"],cc[i]["indexName"],cc[i]["columnName"],cc[i]["columnType"]))
-		}
-		//判断索引列是否建立在大字段类型上（blob、text）
-		if strings.Contains(fmt.Sprintf("%v",cc[i]["columnType"]),"blob") || strings.Contains(fmt.Sprintf("%v",cc[i]["columnType"]),"text"){
-			aa.Loggs.Error(fmt.Sprintf("An index column is blob or text type. The information is as follows: The information is as follows: database: \"%s\"  tablename: \"%s\" indexName: \"%s\" columnName: \"%s\" columnType: \"%s\"",cc[i]["databaseName"],cc[i]["tableName"],cc[i]["indexName"],cc[i]["columnName"],cc[i]["columnType"]))
-		}
+func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckIndexColumnDesign(){
+	pub.Loggs.Info("Begin by checking that index usage is reasonable and index column creation is standard")
+	var tmpMap = make(map[string]string)
+	for i := range pub.InformationSchemaStatistics{
+		a := pub.InformationSchemaStatistics[i]
+		v := fmt.Sprintf("%s_%s_%s",a["TABLE_SCHEMA"],a["TABLE_NAME"],a["COLUMN_NAME"])
+		tmpMap[v] = a["INDEX_NAME"].(string)
 	}
-	//检查唯一索引和主键索引重复
-	strSql = fmt.Sprintf("select table_schema databaseName,table_name tableName,non_unique noUnique,index_name indexName,column_name columnName from information_schema.STATISTICS where table_schema not in (%s)",ignoreTableSchema)
-	//strSql = fmt.Sprintf("select table_schema databaseName,table_name tableName,non_unique noUnique,index_name indexName,column_name columnName from information_schema.STATISTICS where table_schema in (\"%s\")","wlkycs")
-	dd := aa.DatabaseExecInterf.DBQueryDateJson(aa,strSql)
-	var indexCloumnMerge = make([]map[string]interface{},0)
-	var tmpColumnNameString,tmpDatabaseName,tmpTableName,tmpIndexName interface{}
-	//对数据进行处理，索引列进行合并，同一库表下同一索引名尤其是复合索引下将列进行合并
-	for i := range dd{
-		var dmap = make(map[string]interface{})
-		if dd[i]["databaseName"] == tmpDatabaseName && dd[i]["tableName"] == tmpTableName && dd[i]["indexName"] == tmpIndexName{
-			tmpColumnNameString = fmt.Sprintf("%s,%s",tmpColumnNameString,dd[i]["columnName"])
-			dmap["columnName"] = tmpColumnNameString
-			indexCloumnMerge = indexCloumnMerge[:len(indexCloumnMerge)-1]
-		}else {
-			tmpColumnNameString = dd[i]["columnName"]
-			dmap["columnName"] = dd[i]["columnName"]
-		}
-		tmpIndexName = dd[i]["indexName"]
-		tmpTableName = dd[i]["tableName"]
-		tmpDatabaseName = dd[i]["databaseName"]
-		dmap["databaseName"] = dd[i]["databaseName"]
-		dmap["tableName"] = dd[i]["tableName"]
-		dmap["indexName"] = dd[i]["indexName"]
-		indexCloumnMerge = append(indexCloumnMerge,dmap)
-	}
-	//检查重复索引
-	for i := range indexCloumnMerge{
-		if indexCloumnMerge[i]["databaseName"] == tmpDatabaseName && indexCloumnMerge[i]["tableName"] == tmpTableName && indexCloumnMerge[i]["indexName"] != tmpIndexName {
-			befColumn := fmt.Sprintf("%v",tmpColumnNameString)
-			endColumn := fmt.Sprintf("%v",indexCloumnMerge[i]["columnName"])
-			if strings.Contains(endColumn,befColumn) && befColumn[0] == endColumn[0]{
-				aa.Loggs.Error(fmt.Sprintf("Redundant index columns appear. The information is as follows: database:\"%s\" tablename: \"%s\" Redundant indexes: \"%s %s\", \"%s %s\"",
-					indexCloumnMerge[i]["databaseName"],indexCloumnMerge[i]["tableName"],tmpColumnNameString,tmpIndexName,indexCloumnMerge[i]["columnName"],indexCloumnMerge[i]["indexName"]))
+	for i := range pub.InformationSchemaColumnsData{
+		var d = make(map[string]string)
+		a := pub.InformationSchemaColumnsData[i]
+		v := fmt.Sprintf("%s_%s_%s",a["TABLE_SCHEMA"],a["TABLE_NAME"],a["COLUMN_NAME"])
+		d["database"] = a["TABLE_SCHEMA"].(string)
+		d["tableName"] = a["TABLE_NAME"].(string)
+		d["columnName"] = a["COLUMN_NAME"].(string)
+		d["columnType"] = a["COLUMN_TYPE"].(string)
+		d["columnIsNull"] = a["IS_NULLABLE"].(string)
+		if _,ok := tmpMap[v];ok {
+				//判断索引列是否允许为空
+			if a["IS_NULLABLE"] == "YES" {
+				d["checkStatus"] = "abnormal" //异常
+				d["checkType"] = "indexColumnIsNull"
+				pub.InspectionResult.BaselineCheckIndexColumnDesign.IndexColumnIsNull = append(pub.InspectionResult.BaselineCheckIndexColumnDesign.IndexColumnIsNull, d)
+				pub.Loggs.Error(fmt.Sprintf("An index column is empty.The information is as follows: database: \"%s\"  tablename: \"%s\" indexName: \"%s\" columnName: \"%s\" columnType: \"%s\"", a["TABLE_SCHEMA"], a["TABLE_NAME"], tmpMap[v], a["COLUMN_NAME"], a["COLUMN_TYPE"]))
+			} else {
+				d["checkStatus"] = "normal" //异常
+				d["checkType"] = "indexColumnIsNull"
+				pub.InspectionResult.BaselineCheckIndexColumnDesign.IndexColumnIsNull = append(pub.InspectionResult.BaselineCheckIndexColumnDesign.IndexColumnIsNull, d)
+			}
+
+			m := newMap(d)
+			columnTypeStr := fmt.Sprintf("%s",a["COLUMN_TYPE"])
+			//判断索引列是否建立在enum或set类型上面
+			if strings.Contains(columnTypeStr, "enum") || strings.Contains(columnTypeStr, "set") {
+				m["checkStatus"] = "abnormal" //异常
+				m["checkType"] = "indexColumnIsEnumSet"
+				pub.InspectionResult.BaselineCheckIndexColumnDesign.IndexColumnIsEnumSet = append(pub.InspectionResult.BaselineCheckIndexColumnDesign.IndexColumnIsEnumSet, m)
+				pub.Loggs.Error(fmt.Sprintf("An index column is enum or set type. The information is as follows: The information is as follows: database: \"%s\"  tablename: \"%s\" indexName: \"%s\" columnName: \"%s\" columnType: \"%s\"", a["TABLE_SCHEMA"], a["TABLE_NAME"], tmpMap[v], a["COLUMN_NAME"], a["COLUMN_TYPE"]))
+			} else {
+				m["checkStatus"] = "normal" //异常
+				m["checkType"] = "indexColumnIsEnumSet"
+				pub.InspectionResult.BaselineCheckIndexColumnDesign.IndexColumnIsEnumSet = append(pub.InspectionResult.BaselineCheckIndexColumnDesign.IndexColumnIsEnumSet, m)
+			}
+			n := newMap(d)
+			//判断索引列是否建立在enum或set类型上面
+			if strings.Contains(columnTypeStr, "blob") || strings.Contains(columnTypeStr, "text") {
+				n["checkStatus"] = "abnormal" //异常
+				n["checkType"] = "indexColumnIsBlobText"
+				pub.InspectionResult.BaselineCheckIndexColumnDesign.IndexColumnIsBlobText = append(pub.InspectionResult.BaselineCheckIndexColumnDesign.IndexColumnIsBlobText, n)
+				pub.Loggs.Error(fmt.Sprintf("An index column is blob or text type. The information is as follows: The information is as follows: database: \"%s\"  tablename: \"%s\" indexName: \"%s\" columnName: \"%s\" columnType: \"%s\"", a["databaseName"], a["tableName"], a["indexName"], a["columnName"], a["columnType"]))
+			} else {
+				n["checkStatus"] = "normal" //正常
+				n["checkType"] = "indexColumnIsBlobText"
+				pub.InspectionResult.BaselineCheckIndexColumnDesign.IndexColumnIsBlobText = append(pub.InspectionResult.BaselineCheckIndexColumnDesign.IndexColumnIsBlobText, n)
 			}
 		}
-		tmpIndexName = indexCloumnMerge[i]["indexName"]
-		tmpTableName = indexCloumnMerge[i]["tableName"]
-		tmpDatabaseName = indexCloumnMerge[i]["databaseName"]
-		tmpColumnNameString = indexCloumnMerge[i]["columnName"]
 	}
 
+	//利用map合并联合索引列
+	var tmpIndexMargeMap = make(map[string]string)
+	for k := range pub.InformationSchemaStatistics{
+		b := pub.InformationSchemaStatistics
+		key := fmt.Sprintf("%s@%s@@%s",b[k]["TABLE_SCHEMA"],b[k]["TABLE_NAME"],b[k]["INDEX_NAME"])
+		if val,ok := tmpIndexMargeMap[key];ok && k>1 && b[k-1]["TABLE_SCHEMA"]==b[k]["TABLE_SCHEMA"] && b[k-1]["TABLE_NAME"]==b[k]["TABLE_NAME"]{
+			tmpValue := fmt.Sprintf("%s,%s",val,b[k]["COLUMN_NAME"])
+			tmpIndexMargeMap[key] = tmpValue
+		}else{
+			tmpValue := fmt.Sprintf("%s",b[k]["COLUMN_NAME"])
+			tmpIndexMargeMap[key] = tmpValue
+		}
+	}
+	//分离出每个库表下包含的索引
+	var tmpdatabaseTableIncludeIndexMap = make(map[string]map[string]string)
+	for k,v := range tmpIndexMargeMap{
+		tmpMapp := make(map[string]string)
+		a := strings.Split(k,"@@")  //库表
+		if val,ok := tmpdatabaseTableIncludeIndexMap[a[0]];ok{
+			for tmpk := range val{
+				tmpMapp[tmpk] = val[tmpk]  //旧的key value
+			}
+			tmpMapp[a[1]] = v  //新的key value
+			tmpdatabaseTableIncludeIndexMap[a[0]] = tmpMapp
+		}else{
+			tmpMapp[a[1]] = v
+			tmpdatabaseTableIncludeIndexMap[a[0]] = tmpMapp
+		}
+	}
+	//遍历每一个库表下的索引列，寻找冗余索引
+	for k,v := range tmpdatabaseTableIncludeIndexMap{
+		var d = make(map[string]string)
+		var tmpRedundancyIndexStatus = false
+		var tmpDatabase,tmpTablename,tmpIndexRedundancyName,tmpIndexRedundancyColumn,tmpIndexColumnName,tmpIndexIncludeColumn string
+		a := strings.Split(k,"@")
+		tmpDatabase = a[0]
+		tmpTablename = a[1]
+		for ki,ui := range v{
+			for kii,uii := range v{
+				if ui != uii && strings.HasPrefix(uii,ui){
+					tmpIndexRedundancyColumn = ui
+					tmpIndexIncludeColumn = uii
+					tmpIndexColumnName = kii
+					tmpIndexRedundancyName = ki
+					tmpRedundancyIndexStatus = true
+				}
+			}
+		}
+		d["database"] = tmpDatabase
+		d["tableName"] = tmpTablename
+		d["redundantIndexes"] = fmt.Sprintf("%s %s,%s %s" ,tmpIndexRedundancyName,tmpIndexRedundancyColumn,tmpIndexColumnName,tmpIndexIncludeColumn)
+		d["checkStatus"] = "normal" //正常
+		d["checkType"] = "tableIncludeRepeatIndex"
+		if tmpRedundancyIndexStatus {
+			d["checkStatus"] = "abnormal" //异常
+			pub.Loggs.Error(fmt.Sprintf("Redundant index columns appear. The information is as follows: database:\"%s\" tablename: \"%s\" Redundant indexes: (indexName:\"%s\" indexColumns \"%s\"), (indexName: \"%s\" indexColumns: \"%s\")", tmpDatabase,tmpTablename,tmpIndexRedundancyName,tmpIndexRedundancyColumn,tmpIndexColumnName,tmpIndexIncludeColumn))
+		}
+		pub.InspectionResult.BaselineCheckIndexColumnDesign.IndexColumnIsRepeatIndex = append(pub.InspectionResult.BaselineCheckIndexColumnDesign.IndexColumnIsRepeatIndex,d)
+	}
 }
-//存储过程及存储函数检查限制
-func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckProcedureTriggerDesign(aa *PublicClass.ConfigInfo){
-	ignoreTableSchema := "'mysql','information_schema','performance_schema','sys'"
-	aa.Loggs.Info("Begin a baseline check to checking whether the database uses stored procedures, stored functions, or triggers")
-	strSql := fmt.Sprintf("select ROUTINE_SCHEMA databaseName,ROUTINE_NAME routineName,ROUTINE_TYPE routineType,DEFINER definer,CREATED created from information_schema.routines where ROUTINE_SCHEMA not in(%s)",ignoreTableSchema)
-	cc := aa.DatabaseExecInterf.DBQueryDateJson(aa,strSql)
-	for i := range cc{
-		if cc[i]["routineType"] == "FUNCTION" || cc[i]["routineType"] == "PROCEDURE" {
-			aa.Loggs.Error(fmt.Sprintf("The current database uses a storage function or storage procedure. The information is as follows: database: \"%s\" routineName: \"%s\" user: \"%s\" create time: \"%s\"" ,cc[i]["databaseName"],cc[i]["routineName"],cc[i]["definer"],cc[i]["created"]))
+
+//存储过程、存储函数、触发器检查限制
+func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckProcedureTriggerDesign(){
+	pub.Loggs.Info("Begin a baseline check to checking whether the database uses stored procedures, stored functions, or triggers")
+	//var c []map[string]string
+	for i := range pub.InformationSchemaRoutines{
+		cc := pub.InformationSchemaRoutines[i]
+		var d = make(map[string]string)
+		d["database"] = cc["ROUTINE_SCHEMA"].(string)
+		d["definer"] = cc["DEFINER"].(string)
+		d["created"] = cc["CREATED"].(string)
+		d["routineName"] = cc["ROUTINE_NAME"].(string)
+		if  cc["ROUTINE_TYPE"] == "PROCEDURE" {
+			d["checkStatus"] = "abnormal"    //异常状态
+			d["checkType"] = "tableProcedure"
+			pub.InspectionResult.BaselineCheckProcedureTriggerDesign.TableProcedure = append(pub.InspectionResult.BaselineCheckProcedureTriggerDesign.TableProcedure,d)
+			pub.Loggs.Error(fmt.Sprintf("The current database uses a storage procedure. The information is as follows: database: \"%s\" routineName: \"%s\" user: \"%s\" create time: \"%s\"" ,cc["ROUTINE_SCHEMA"],cc["ROUTINE_NAME"],cc["DEFINER"],cc["CREATED"]))
+		}
+		m := newMap(d)
+		if cc["ROUTINE_TYPE"] == "FUNCTION" {
+			m["checkStatus"] = "abnormal"    //异常状态
+			m["checkType"] = "tableFunc"
+			pub.InspectionResult.BaselineCheckProcedureTriggerDesign.TableFunc = append(pub.InspectionResult.BaselineCheckProcedureTriggerDesign.TableFunc,m)
+			pub.Loggs.Error(fmt.Sprintf("The current database uses a storage function . The information is as follows: database: \"%s\" routineName: \"%s\" user: \"%s\" create time: \"%s\"" ,cc["ROUTINE_SCHEMA"],cc["ROUTINE_NAME"],cc["DEFINER"],cc["CREATED"]))
 		}
 	}
-	strSql = fmt.Sprintf("select TRIGGER_SCHEMA databaseName,TRIGGER_NAME triggerName,DEFINER definer,CREATED created from information_schema.TRIGGERS where TRIGGER_SCHEMA not in (%s)",ignoreTableSchema)
-	dd := aa.DatabaseExecInterf.DBQueryDateJson(aa,strSql)
-	for i := range dd{
-		if dd[i]["triggerName"] != nil{
-			aa.Loggs.Error(fmt.Sprintf("The current database uses a trigger. The information is as follows: database: \"%s\" triggerName: \"%s\"  user: \"%s\"  create time:\"%s\"" ,dd[i]["databaseName"],dd[i]["triggerName"],dd[i]["definer"],dd[i]["created"]))
+	// 检查是否使用触发器
+	for i := range pub.InformationSchemaTriggers{
+		var d = make(map[string]string)
+		dd := pub.InformationSchemaTriggers[i]
+		d["database"] = dd["TRIGGER_SCHEMA"].(string)
+		if dd["TRIGGER_NAME"] != nil{
+			d["triggerName"] = dd["TRIGGER_NAME"].(string)
+			d["definer"] = dd["DEFINER"].(string)
+			d["created"] = dd["CREATED"].(string)
+			d["checkStatus"] = "abnormal"    //异常状态
+			d["checkType"] = "tableTrigger"
+			pub.InspectionResult.BaselineCheckProcedureTriggerDesign.TableTrigger = append(pub.InspectionResult.BaselineCheckProcedureTriggerDesign.TableTrigger,d)
+			pub.Loggs.Error(fmt.Sprintf("The current database uses a trigger. The information is as follows: database: \"%s\" triggerName: \"%s\"  user: \"%s\"  create time:\"%s\"" ,dd["TRIGGER_SCHEMA"],dd["TRIGGER_NAME"],dd["DEFINER"],dd["CREATED"]))
 		}
 	}
-	aa.Loggs.Info("Check whether the database is completed using stored programs, stored functions, and stored triggers")
+	pub.Loggs.Info("Check whether the database is completed using stored programs, stored functions, and stored triggers")
 }
