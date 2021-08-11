@@ -1,0 +1,29 @@
+#输出被巡检的数据库信息（目前只支持MySQL）
+dbinfo:
+  dirverName: mysql         #指定数据库类型
+  username: pcms            #指定连接数据库的用户名
+  password: pcms@123        #指定连接数据库的密码
+  host: 172.16.50.161       #指定连接数据库的ip地址
+  port: 3306                #指定连接数据库的port
+  database: information_schema  #指定默认连接的数据库，非必选项，
+  charset: utf8             #指定连接数据库时的字符集
+  dbConnIdleTime: 100       #指定会话的空闲时间
+  maxIdleConns: 100         #指定最大的空闲连接数
+
+#输出日志信息
+logs:
+  loglevel: error            #定义日志输出级别
+  outputFile:               #日志输出设置
+    logfile: .\log\aab       #日志路径，可以为绝对路径也可以为相对路径。例如：D:\\goProject\\DepthInspection\\log\\aab
+    logMaxAge: 100          #日志最大生存时间
+    isConsole: true         #针对输出日志信息中的日志级别是否有颜色
+    rotationTime: 100       #日志轮转时间
+    skip: 10                #日志输出代码向上查找的层级，建议不要修改
+
+#巡检结果集输出
+resultOutput:
+  outputWay: pdf            #将结果集汇总输出到pdf中，并产生可视化报告
+  outputPath: .\           #生成的pdf的路径，全路径或当前绝对路径
+  outputFile: MySQL DepthInspection Result Report.pdf   #输出结果的pdf文件名
+  inspectionPersonnel: golang  #在pdf报告中会在巡检人员中显示该值
+  inspectionLevel: 重保巡检     #在pdf报告中会在巡检等级中显示该值

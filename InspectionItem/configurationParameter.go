@@ -20,14 +20,14 @@ func DatabaseConfigCheck(confParameterList map[string]string)  {
 		}
 		d  := make(map[string]string)
 		d["configVariableName"] = configVariablesName
-		d["configVariable"] = a
-		d["configVariableAdvice"] = configValue
+		d["configVariable"] = a   //当前值
+		d["configValue"] = configValue //建议值
 		d["checkStatus"] = "normal"    //正常
 		d["checkType"] = "configParameter"
 		if !strings.EqualFold(a,configValue) {
 			d["checkStatus"] = "abnormal"    //异常
 			d["checkType"] = "configParameter"
-			errorStrinfo := fmt.Sprintf("检测当前数据库配置参数为 %s 不符合预定要求! 当前值为 %s 建议设置成 %s",configVariablesName,a,configValue)
+			errorStrinfo := fmt.Sprintf("The current database configuration is \"%s\" Not meeting reservation requirements! The current value of \"%s\" You are advised to set it to \"%s\"",configVariablesName,a,configValue)
 			pub.Loggs.Error(errorStrinfo)
 		}
 		pub.InspectionResult.DatabaseConfigCheck.ConfigParameter = append(pub.InspectionResult.DatabaseConfigCheck.ConfigParameter,d)
@@ -85,7 +85,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckTablesDesign() {
 			d["checkStatus"] = "abnormal"    //异常
 			d["checkType"] = "tableCharset"
 			pub.InspectionResult.BaselineCheckTablesDesign.TableCharset = append(pub.InspectionResult.BaselineCheckTablesDesign.TableCharset,d)
-			pub.Loggs.Error(fmt.Sprintf("The current table character set is not UTF8 or UTF8MB4 character. error info: Database is %s table is %s table charset is %s ",pub.InformationSchemaTablesData[i]["TABLE_SCHEMA"],pub.InformationSchemaTablesData[i]["TABLE_NAME"],tableCharset))
+			pub.Loggs.Error(fmt.Sprintf("The current table character set is not UTF8 or UTF8MB4 character. error info: Database is \"%s\" table is \"%s\" table charset is \"%s\" ",pub.InformationSchemaTablesData[i]["TABLE_SCHEMA"],pub.InformationSchemaTablesData[i]["TABLE_NAME"],tableCharset))
 		}else{
 			d["charset"] = tableCharset
 			d["checkStatus"] = "normal"    //异常
@@ -98,7 +98,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckTablesDesign() {
 			m["checkStatus"] = "abnormal"
 			m["checkType"] = "tableEngine"
 			pub.InspectionResult.BaselineCheckTablesDesign.TableEngine = append(pub.InspectionResult.BaselineCheckTablesDesign.TableEngine,m)
-			pub.Loggs.Error(fmt.Sprintf("The current table engine set is not innodb engine. error info: Database is %s table is %s table engine is %s ",pub.InformationSchemaTablesData[i]["TABLE_SCHEM"],pub.InformationSchemaTablesData[i]["TABLE_NAME"],pub.InformationSchemaTablesData[i]["ENGINE"]))
+			pub.Loggs.Error(fmt.Sprintf("The current table engine set is not innodb engine. error info: Database is \"%s\" table is \"%s\" table engine is \"%s\" ",pub.InformationSchemaTablesData[i]["TABLE_SCHEMA"],pub.InformationSchemaTablesData[i]["TABLE_NAME"],pub.InformationSchemaTablesData[i]["ENGINE"]))
 		}
 		if pub.InformationSchemaTablesData[i]["ENGINE"] != nil && strings.EqualFold(pub.InformationSchemaTablesData[i]["ENGINE"].(string),"innodb"){
 			m["checkType"] = "tableEngine"
@@ -120,9 +120,9 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckTablesDesign() {
 			d["constraintName"] = pub.InformationSchemaKeyColumnUsage[i]["CONSTRAINT_NAME"].(string)
 			d["referencedTableName"] = pub.InformationSchemaKeyColumnUsage[i]["REFERENCED_TABLE_NAME"].(string)
 			d["referencedColumnName"] = pub.InformationSchemaKeyColumnUsage[i]["REFERENCED_COLUMN_NAME"].(string)
-			pub.Loggs.Error(fmt.Sprintf("The current table uses a foreign key constraint. The information is as follows: database: %s " +
-				"tableName: %s column: %s Foreign key constraint name: %s Foreign key constraints table: %s" +
-				"Foreign key constraints columns: %s",pub.InformationSchemaKeyColumnUsage[i]["databaseName"],pub.InformationSchemaKeyColumnUsage[i]["tableName"],pub.InformationSchemaKeyColumnUsage[i]["columnName"],pub.InformationSchemaKeyColumnUsage[i]["CONSTRAINT_NAME"],pub.InformationSchemaKeyColumnUsage[i]["REFERENCED_TABLE_NAME"],pub.InformationSchemaKeyColumnUsage[i]["REFERENCED_COLUMN_NAME"]))
+			pub.Loggs.Error(fmt.Sprintf("The current table uses a foreign key constraint. The information is as follows: database: \"%s\" " +
+				"tableName: \"%s\" column: \"%s\" Foreign key constraint name: \"%s\" Foreign key constraints table: \"%s\"" +
+				"Foreign key constraints columns: \"%s\"",pub.InformationSchemaKeyColumnUsage[i]["databaseName"],pub.InformationSchemaKeyColumnUsage[i]["tableName"],pub.InformationSchemaKeyColumnUsage[i]["columnName"],pub.InformationSchemaKeyColumnUsage[i]["CONSTRAINT_NAME"],pub.InformationSchemaKeyColumnUsage[i]["REFERENCED_TABLE_NAME"],pub.InformationSchemaKeyColumnUsage[i]["REFERENCED_COLUMN_NAME"]))
 		}
 		pub.InspectionResult.BaselineCheckTablesDesign.TableForeign = append(pub.InspectionResult.BaselineCheckTablesDesign.TableForeign,d)
 	}
@@ -140,6 +140,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckTablesDesign() {
 			if ke != pub.InformationSchemaColumnsData[v]["TABLE_SCHEMA"].(string) || vl != pub.InformationSchemaColumnsData[v]["TABLE_NAME"].(string){
 				dd["checkStatus"] = "abnormal"    //异常
 				pub.InspectionResult.BaselineCheckTablesDesign.TableNoPrimaryKey = append(pub.InspectionResult.BaselineCheckTablesDesign.TableNoPrimaryKey,dd)
+				pub.Loggs.Error(fmt.Sprintf("The current table has no primary key. error info: Database is \"%s\" table is \"%s\"",pub.InformationSchemaColumnsData[v]["TABLE_SCHEMA"],pub.InformationSchemaColumnsData[v]["TABLE_NAME"]))
 			}
 		}
 		ke = pub.InformationSchemaColumnsData[v]["TABLE_SCHEMA"].(string)
@@ -162,7 +163,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckColumnsDesign(){
 				d["checkStatus"] = "abnormal"    //异常
 				d["checkType"] = "tableAutoIncrement"
 				pub.InspectionResult.BaselineCheckColumnsDesign.TableAutoIncrement = append(pub.InspectionResult.BaselineCheckColumnsDesign.TableAutoIncrement,d)
-				pub.Loggs.Error(fmt.Sprintf("The primary key column is not of type Bigint. The information is as follows: database: %s tableName: %s columnsName: %s columnType: %s.", pub.InformationSchemaColumnsData[i]["TABLE_SCHEMA"],pub.InformationSchemaColumnsData[i]["TABLE_NAME"],pub.InformationSchemaColumnsData[i]["COLUMN_NAME"],pub.InformationSchemaColumnsData[i]["COLUMN_TYPE"]))
+				pub.Loggs.Error(fmt.Sprintf("The primary key column is not of type Bigint. The information is as follows: database: \"%s\" tableName: \"%s\" columnsName: \"%s\" columnType: \"%s\".", pub.InformationSchemaColumnsData[i]["TABLE_SCHEMA"],pub.InformationSchemaColumnsData[i]["TABLE_NAME"],pub.InformationSchemaColumnsData[i]["COLUMN_NAME"],pub.InformationSchemaColumnsData[i]["COLUMN_TYPE"]))
 			}else {
 				d["checkStatus"] = "normal"    //异常
 				d["checkType"] = "tableAutoIncrement"
@@ -177,7 +178,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckColumnsDesign(){
 					m["checkStatus"] = "abnormal" //异常
 					m["checkType"] = "tableBigColumns"
 					pub.InspectionResult.BaselineCheckColumnsDesign.TableBigColumns = append(pub.InspectionResult.BaselineCheckColumnsDesign.TableBigColumns, m)
-					pub.Loggs.Error(fmt.Sprintf("The column data types of the current table in the database exist BLOB, TEXT, TIMESTAMP. The information is as follows: database: %s tableName: %s columnsName: %s columnType: %s.", pub.InformationSchemaColumnsData[i]["TABLE_SCHEMA"], pub.InformationSchemaColumnsData[i]["TABLE_NAME"], pub.InformationSchemaColumnsData[i]["COLUMN_NAME"], pub.InformationSchemaColumnsData[i]["COLUMN_TYPE"]))
+					pub.Loggs.Error(fmt.Sprintf("The column data types of the current table in the database exist BLOB, TEXT, TIMESTAMP. The information is as follows: database: \"%s\" tableName: \"%s\" columnsName: \"%s\" columnType: \"%s\".", pub.InformationSchemaColumnsData[i]["TABLE_SCHEMA"], pub.InformationSchemaColumnsData[i]["TABLE_NAME"], pub.InformationSchemaColumnsData[i]["COLUMN_NAME"], pub.InformationSchemaColumnsData[i]["COLUMN_TYPE"]))
 				} else {
 					m["checkStatus"] = "normal" //正常
 					m["checkType"] = "tableBigColumns"
