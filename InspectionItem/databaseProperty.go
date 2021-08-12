@@ -266,7 +266,6 @@ func (baselineCheck *DatabaseBaselineCheckStruct) DatabasePerformanceStatusCheck
 		d["errorCode"] = "PF1-12"
 		d["checkType"] = "selectfullJoinScanUsageRate"
 		d["checkStatus"] = "abnormal"    //异常
-		d["binlogDiskUsageRate"] = strconv.Itoa(selectfullJoinScanUsageRate)
 		d["currentValue"] = fmt.Sprintf("%s=%s","selectfullJoinScanUsageRate",strconv.Itoa(selectfullJoinScanUsageRate))
 		PublicClass.InspectionResult.DatabasePerformance.PerformanceStatus.SelectfullJoinScanUsageRate = append(PublicClass.InspectionResult.DatabasePerformance.PerformanceStatus.SelectfullJoinScanUsageRate,d)
 		PublicClass.Loggs.Warn("The database uses the JOIN statement and the non-driver table does not use the index. The full table scan usage is greater than \"10%\". You are advised to check for slow SQL")
@@ -316,6 +315,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) DatabasePerformanceTableIndexC
 			if strings.Contains(tmpColumnType,"unsigned"){
 				if unsignedIntUsageRate,err := PublicClass.Strea.Percentage(v["AUTO_INCREMENT"],MunsignedInt);err ==nil && unsignedIntUsageRate >=85{
 					e["checkStatus"] = "abnormal"
+					e["currentValue"] = fmt.Sprintf("%s.%s",v["TABLE_SCHEMA"],v["TABLE_NAME"])
 					PublicClass.Loggs.Warn(fmt.Sprintf("The self-value-added usage of tables in the database exceeds \"85%%\", causing data type overflow risks. The details are as follows: Database: \"%v\", table name: \"%v\", increment column name: \"%v\", increment column data type: \"%v\", current increment values: \"%v\"",v["TABLE_SCHEMA"],v["TABLE_NAME"],tmpColumnName,tmpColumnType,v["AUTO_INCREMENT"]))
 				} else{
 					e["checkStatus"] = "normal"
@@ -342,6 +342,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) DatabasePerformanceTableIndexC
 		m["avgRowLength"] = strconv.Itoa(avgRowLength)
 		if tableRows > 5000000 && avgRowLength/1024 > 10 {
 			m["checkStatus"] = "abnormal"
+			m["currentValue"] = fmt.Sprintf("%s.%s",v["TABLE_SCHEMA"],v["TABLE_NAME"])
 			PublicClass.InspectionResult.DatabasePerformance.PerformanceTableIndex.TableRows = append(PublicClass.InspectionResult.DatabasePerformance.PerformanceTableIndex.TableRows, m)
 			PublicClass.Loggs.Warn(fmt.Sprintf("The current table is a large table if the number of rows is greater than 5 million and the average line length is greater than 10KB. The details are as follows: Database: \"%v\", table name: \"%v\", tableRows: \"%v\", avgRowLength：\"%d\"",v["TABLE_SCHEMA"],v["TABLE_NAME"],tableRows,avgRowLength/1024))
 		} else {
@@ -359,10 +360,9 @@ func (baselineCheck *DatabaseBaselineCheckStruct) DatabasePerformanceTableIndexC
 		n["threshold"] = ">30%"
 		n["errorCode"] = "PF2-03"
 		n["checkType"] = "diskFragmentationRate"
-		n["dataLengthTotal"] = strconv.Itoa(int(dataLengthTotal))
 		if diskFragmentationRate, err := PublicClass.Strea.Percentage(dataFree, dataLengthTotal); diskFragmentationRate > 1 && err == nil && dataLengthTotal/1024/1024/1024 > 1 {
-			n["diskFragmentationRate"] = strconv.Itoa(diskFragmentationRate)
 			n["checkStatus"] = "abnormal"
+			n["currentValue"] = fmt.Sprintf("%s.%s",v["TABLE_SCHEMA"],v["TABLE_NAME"])
 			PublicClass.InspectionResult.DatabasePerformance.PerformanceTableIndex.DiskFragmentationRate = append(PublicClass.InspectionResult.DatabasePerformance.PerformanceTableIndex.DiskFragmentationRate, n)
 			PublicClass.Loggs.Warn(fmt.Sprintf("If the current tablespace contains more than 6 GB and the disk fragmentation rate is greater than 30%%, you are advised to run THE ALTER command to delete disk fragmentation. The details are as follows: Database: \"%v\", table name: \"%v\", Table space size: \"%dG\", diskFragmentationRate：\"%d\"",v["TABLE_SCHEMA"],v["TABLE_NAME"],dataLengthTotal/1024/1024/1024,diskFragmentationRate))
 		} else {
@@ -380,6 +380,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) DatabasePerformanceTableIndexC
 		o["tableRows"] = strconv.Itoa(tableRows)
 		if dataLengthTotal/1024/1024/1024 > 30 && tableRows > 10000000 {
 			o["checkStatus"] = "abnormal"
+			o["currentValue"] = fmt.Sprintf("%s.%s",v["TABLE_SCHEMA"],v["TABLE_NAME"])
 			PublicClass.InspectionResult.DatabasePerformance.PerformanceTableIndex.BigTable = append(PublicClass.InspectionResult.DatabasePerformance.PerformanceTableIndex.BigTable, o)
 			PublicClass.Loggs.Warn(fmt.Sprintf("If the number of rows in the current table is greater than 1000W and the tablespace is greater than 30G, the table belongs to a large table. Recommended Attention Table. The details are as follows: Database: \"%v\", table name: \"%v\", tableRows：\"%d\", Table space size: \"%dG\"",v["TABLE_SCHEMA"],v["TABLE_NAME"],tableRows,dataLengthTotal/1024/1024/1024))
 		} else {
@@ -403,6 +404,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) DatabasePerformanceTableIndexC
 		p["checkType"] = "coldTable"
 		if arrDay > 7 {
 			p["checkStatus"] = "abnormal"
+			p["currentValue"] = fmt.Sprintf("%s.%s",v["TABLE_SCHEMA"],v["TABLE_NAME"])
 			PublicClass.InspectionResult.DatabasePerformance.PerformanceTableIndex.ColdTable = append(PublicClass.InspectionResult.DatabasePerformance.PerformanceTableIndex.ColdTable, p)
 			PublicClass.Loggs.Error(fmt.Sprintf("The current table has not been updated for seven days (no DML has occurred against the table). The details are as follows: Database: \"%v\", table name: \"%v\", lasterUpdateTime：\"%v\" ",v["TABLE_SCHEMA"],v["TABLE_NAME"],tableUpdateTime))
 		} else {

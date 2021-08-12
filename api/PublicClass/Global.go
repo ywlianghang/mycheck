@@ -6,6 +6,16 @@ import (
 	"fmt"
 )
 
+//顶级目录
+type InspectionResultsStruct struct {
+	DatabaseConfigCheck DatabaseConfigCheckResultStruct
+	DatabaseBaselineCheck DatabaseBaselineCheckStruct
+	//BaselineCheckUserPriDesign BaselineCheckUserPriDesignResultStruct
+	//BaselineCheckPortDesign BaselineCheckPortDesignResultStruct
+	DatabasePerformance DatabasePerformanceCheckStruct
+	DatabaseSecurity  DatabaseSecurityCheckStruct
+}
+
 //一级结构体，数据库配置参数检查
 type DatabaseConfigCheckResultStruct struct{
 	ConfigParameter []map[string]string
@@ -14,6 +24,18 @@ type DatabaseConfigCheckResultStruct struct{
 type DatabasePerformanceCheckStruct struct {
 	PerformanceStatus DatabasePerformanceStatusCheckResultStruct  //检查状态
 	PerformanceTableIndex DatabasePerformanceTableIndexCheckResultStruct  //检查表和索引
+}
+//一级结构体，数据库基线检查
+type DatabaseBaselineCheckStruct struct{
+	TableDesign BaselineCheckTablesDesignResultStruct
+	ColumnDesign BaselineCheckColumnDesignResultStruct
+	IndexColumnsDesign BaselineCheckIndexColumnDesignResultStruct
+	ProcedureTriggerDesign BaselineCheckProcedureTriggerDesignResultStruct
+}
+//一级结构体，数据库安全检查
+type DatabaseSecurityCheckStruct struct {
+	UserPriDesign BaselineCheckUserPriDesignResultStruct
+	PortDesign BaselineCheckPortDesignResultStruct
 }
 
 type BaselineCheckTablesDesignResultStruct struct{
@@ -49,6 +71,7 @@ type BaselineCheckUserPriDesignResultStruct struct{
 type BaselineCheckPortDesignResultStruct struct{
 	DatabasePort []map[string]string
 }
+
 type DatabasePerformanceStatusCheckResultStruct struct{
 	BinlogDiskUsageRate []map[string]string
 	HistoryConnectionMaxUsageRate []map[string]string
@@ -70,18 +93,7 @@ type DatabasePerformanceTableIndexCheckResultStruct struct{
 	BigTable []map[string]string
 	ColdTable []map[string]string
 }
-type InspectionResultsStruct struct {
-	DatabaseConfigCheck DatabaseConfigCheckResultStruct
-	BaselineCheckTablesDesign BaselineCheckTablesDesignResultStruct
-	BaselineCheckColumnsDesign BaselineCheckColumnDesignResultStruct
-	BaselineCheckIndexColumnDesign BaselineCheckIndexColumnDesignResultStruct
-	BaselineCheckProcedureTriggerDesign BaselineCheckProcedureTriggerDesignResultStruct
-	BaselineCheckUserPriDesign BaselineCheckUserPriDesignResultStruct
-	BaselineCheckPortDesign BaselineCheckPortDesignResultStruct
-	DatabasePerformance DatabasePerformanceCheckStruct
-	//DatabasePerformanceCheck DatabasePerformanceStatusCheckResultStruct
-	//DatabasePerformanceTableIndexCheck DatabasePerformanceTableIndexCheckResultStruct
-}
+
 
 //配置文件相关结构体初始化
 var Logconfig *loggs.LogStruct
@@ -95,9 +107,10 @@ var ResultOutput *loggs.ResultOutputFileEntity
 //巡检结果结构体初始化
 //一级结构体初始化
 var InspectionResult = &InspectionResultsStruct{}
+var DatabaseBaselineCheckResult = &DatabaseBaselineCheckStruct{}
 var DatabasePerformance = &DatabasePerformanceCheckStruct{}
 var DatabaseConfigCheckResult = &DatabaseConfigCheckResultStruct{}
-
+var DatabaseSecurityResult = &DatabaseSecurityCheckStruct{}
 
 var BaselineCheckTablesDesignResult = &BaselineCheckTablesDesignResultStruct{}
 var BaselineCheckColumnDesignResult = &BaselineCheckColumnDesignResultStruct{}
