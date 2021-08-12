@@ -1,6 +1,7 @@
 package loggs
 
 import (
+	"DepthInspection/flag"
 	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
@@ -10,6 +11,7 @@ import (
 type BaseInfo struct {
 	Logs LogsEntity `yaml:"logs"`
 	DBinfo DBinfoEntity `yaml:"dbinfo"`
+	ResultOutput ResultOutputFileEntity `yaml:"resultOutput"`
 }
 type DBinfoEntity struct {
 	DirverName string `yaml:"dirverName"`
@@ -34,8 +36,16 @@ type OutputFileEntity struct {
 	RotationTime time.Duration `yaml:"rotationTime"`
 	Skip int `yaml:"skip"`
 }
+type ResultOutputFileEntity struct {
+	OutputWay string `yaml:"outputWay"`
+	OutputPath string `yaml:"outputPath"`
+	OutputFile string `yaml:"outputFile"`
+	InspectionPersonnel string  `yaml:"inspectionPersonnel"`
+	InspectionLevel string `yaml:"inspectionLevel"`
+}
+
 func (conf *BaseInfo) GetConf() BaseInfo {
-	yamlFile,err := ioutil.ReadFile("D:\\goProject\\DepthInspection\\conf\\logs.yaml")
+	yamlFile,err := ioutil.ReadFile(flag.CheckParameter.Config)
 	if err != nil{
 		fmt.Println(err.Error())
 	}

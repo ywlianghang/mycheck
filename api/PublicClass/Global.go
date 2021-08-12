@@ -6,9 +6,38 @@ import (
 	"fmt"
 )
 
+//顶级目录
+type InspectionResultsStruct struct {
+	DatabaseConfigCheck DatabaseConfigCheckResultStruct
+	DatabaseBaselineCheck DatabaseBaselineCheckStruct
+	//BaselineCheckUserPriDesign BaselineCheckUserPriDesignResultStruct
+	//BaselineCheckPortDesign BaselineCheckPortDesignResultStruct
+	DatabasePerformance DatabasePerformanceCheckStruct
+	DatabaseSecurity  DatabaseSecurityCheckStruct
+}
+
+//一级结构体，数据库配置参数检查
 type DatabaseConfigCheckResultStruct struct{
 	ConfigParameter []map[string]string
 }
+//一级结构体，数据库性能检查
+type DatabasePerformanceCheckStruct struct {
+	PerformanceStatus DatabasePerformanceStatusCheckResultStruct  //检查状态
+	PerformanceTableIndex DatabasePerformanceTableIndexCheckResultStruct  //检查表和索引
+}
+//一级结构体，数据库基线检查
+type DatabaseBaselineCheckStruct struct{
+	TableDesign BaselineCheckTablesDesignResultStruct
+	ColumnDesign BaselineCheckColumnDesignResultStruct
+	IndexColumnsDesign BaselineCheckIndexColumnDesignResultStruct
+	ProcedureTriggerDesign BaselineCheckProcedureTriggerDesignResultStruct
+}
+//一级结构体，数据库安全检查
+type DatabaseSecurityCheckStruct struct {
+	UserPriDesign BaselineCheckUserPriDesignResultStruct
+	PortDesign BaselineCheckPortDesignResultStruct
+}
+
 type BaselineCheckTablesDesignResultStruct struct{
 	TableCharset []map[string]string
 	TableEngine []map[string]string
@@ -42,6 +71,7 @@ type BaselineCheckUserPriDesignResultStruct struct{
 type BaselineCheckPortDesignResultStruct struct{
 	DatabasePort []map[string]string
 }
+
 type DatabasePerformanceStatusCheckResultStruct struct{
 	BinlogDiskUsageRate []map[string]string
 	HistoryConnectionMaxUsageRate []map[string]string
@@ -63,25 +93,25 @@ type DatabasePerformanceTableIndexCheckResultStruct struct{
 	BigTable []map[string]string
 	ColdTable []map[string]string
 }
-type InspectionResultsStruct struct {
-	DatabaseConfigCheck DatabaseConfigCheckResultStruct
-	BaselineCheckTablesDesign BaselineCheckTablesDesignResultStruct
-	BaselineCheckColumnsDesign BaselineCheckColumnDesignResultStruct
-	BaselineCheckIndexColumnDesign BaselineCheckIndexColumnDesignResultStruct
-	BaselineCheckProcedureTriggerDesign BaselineCheckProcedureTriggerDesignResultStruct
-	BaselineCheckUserPriDesign BaselineCheckUserPriDesignResultStruct
-	BaselineCheckPortDesign BaselineCheckPortDesignResultStruct
-	DatabasePerformanceCheck DatabasePerformanceStatusCheckResultStruct
-	DatabasePerformanceTableIndexCheck DatabasePerformanceTableIndexCheckResultStruct
-}
+
+
+//配置文件相关结构体初始化
 var Logconfig *loggs.LogStruct
 var Info  *loggs.BaseInfo
 var Dbconfig *DatabaseExecStruct
 var Loggs  loggs.LogOutputInterface
 var DBexecInter DatabaseOperation
 var Strea  *Stream.StreamStruct
+var ResultOutput *loggs.ResultOutputFileEntity
+
+//巡检结果结构体初始化
+//一级结构体初始化
 var InspectionResult = &InspectionResultsStruct{}
+var DatabaseBaselineCheckResult = &DatabaseBaselineCheckStruct{}
+var DatabasePerformance = &DatabasePerformanceCheckStruct{}
 var DatabaseConfigCheckResult = &DatabaseConfigCheckResultStruct{}
+var DatabaseSecurityResult = &DatabaseSecurityCheckStruct{}
+
 var BaselineCheckTablesDesignResult = &BaselineCheckTablesDesignResultStruct{}
 var BaselineCheckColumnDesignResult = &BaselineCheckColumnDesignResultStruct{}
 var BaselineCheckIndexColumnDesignResult = &BaselineCheckIndexColumnDesignResultStruct{}
@@ -97,6 +127,10 @@ var GlobalStatus = make(map[string]string)
 var InformationSchemaTablesData, InformationSchemaColumnsData,InformationSchemaCollationsData  []map[string]interface{}
 var InformationSchemaKeyColumnUsage,InformationSchemaStatistics,InformationSchemaRoutines []map[string]interface{}
 var InformationSchemaTriggers,MysqlUser []map[string]interface{}
+
+//检测耗时相关变量
+var CheckBeginTime,CheckEndTime string
+var CheckTimeConsuming int64
 
 func ConfigInit() {
 	//读取配置文件
@@ -117,10 +151,16 @@ func ConfigInit() {
 		DBconnIdleTime: getConf.DBinfo.DBconnIdleTime,
 		ConnInfo: dbConnInfo,
 	}
+	ResultOutput = &loggs.ResultOutputFileEntity{
+		OutputWay: getConf.ResultOutput.OutputWay,
+		OutputPath: getConf.ResultOutput.OutputPath,
+		OutputFile: getConf.ResultOutput.OutputFile,
+		InspectionPersonnel: getConf.ResultOutput.InspectionPersonnel,
+		InspectionLevel: getConf.ResultOutput.InspectionLevel,
+	}
 	Loggs = Logconfig
 	DBexecInter = Dbconfig
 	Strea = &Stream.StreamStruct{}
-
 }
 
 func QueryDbDateInit(){

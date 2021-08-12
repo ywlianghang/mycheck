@@ -14,6 +14,7 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/streadway/amqp v1.0.0 // indirect
 	github.com/tal-tech/go-zero v1.1.8 // indirect
+	github.com/urfave/cli v1.22.5
 	//github.com/tk103331/stream v0.0.0-20191019122001-158a44f25f37 // indirect
 	github.com/vladoatanasov/logrus_amqp v0.0.0-20181023103017-b21faf6f8ae3 // indirect
 	golang.org/x/net v0.0.0-20210614182718-04defd469f4e // indirect

@@ -110,8 +110,10 @@ func (out *OutputWayStruct) pdfTableBodyFormat( pdf *gofpdf.Fpdf,w []float64,ins
 
 func (out *OutputWayStruct) pdfTableInsert( pdf *gofpdf.Fpdf,w []float64,insertContent [][]string) *gofpdf.Fpdf {
 	var pdf1 = pdf
-	for i := range insertContent{
-		pdf1 = out.pdfTableBodyFormat(pdf1,w,insertContent[i])
+	if insertContent != nil{
+		for i := range insertContent{
+			pdf1 = out.pdfTableBodyFormat(pdf1,w,insertContent[i])
+		}
 	}
 	return pdf
 }

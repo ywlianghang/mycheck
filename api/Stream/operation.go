@@ -39,6 +39,55 @@ func (stre *StreamStruct) GetTimeDayArr (startTime,endTime string) (int64,error)
 	return dateDay,nil
 }
 
+func (stre *StreamStruct) GetTimeHoursArr (startTime,endTime string) (int64,error){
+	// 转成时间戳
+	timeLayout  := "2006-01-02 15:04:05"
+	loc, _ := time.LoadLocation("Local")
+	startUnix,err := time.ParseInLocation(timeLayout,startTime,loc)
+	if err != nil{
+		return 0,err
+	}
+	endUnix,err := time.ParseInLocation(timeLayout,endTime,loc)
+	if err != nil{
+		return 0,err
+	}
+	//求相差天数
+	dateHourse := (endUnix.Unix() - startUnix.Unix()) / 3600
+	return dateHourse,nil
+}
+func (stre *StreamStruct) GetTimeMinutesArr (startTime,endTime string) (int64,error){
+	// 转成时间戳
+	timeLayout  := "2006-01-02 15:04:05"
+	loc, _ := time.LoadLocation("Local")
+	startUnix,err := time.ParseInLocation(timeLayout,startTime,loc)
+	if err != nil{
+		return 0,err
+	}
+	endUnix,err := time.ParseInLocation(timeLayout,endTime,loc)
+	if err != nil{
+		return 0,err
+	}
+	//求相差天数
+	dateMinutes := (endUnix.Unix() - startUnix.Unix()) / 600
+	return dateMinutes,nil
+}
+func (stre *StreamStruct) GetTimeSecondsArr (startTime,endTime string) (int64,error){
+	// 转成时间戳
+	timeLayout  := "2006-01-02 15:04:05"
+	loc, _ := time.LoadLocation("Local")
+	startUnix,err := time.ParseInLocation(timeLayout,startTime,loc)
+	if err != nil{
+		return 0,err
+	}
+	endUnix,err := time.ParseInLocation(timeLayout,endTime,loc)
+	if err != nil{
+		return 0,err
+	}
+	//求相差天数
+	dateSeconds := endUnix.Unix() - startUnix.Unix()
+	return dateSeconds,nil
+}
+
 func (stre *StreamStruct) Add(args ...interface{}) (int,error){
 	var intArry = make([]int,len(args))
 	for i,v:= range args{
