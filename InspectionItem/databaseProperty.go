@@ -32,7 +32,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) DatabasePerformanceStatusCheck
 		d["checkStatus"] = "abnormal"    //异常
 		d["currentValue"] = fmt.Sprintf("%s=%s","binlogDiskUsageRate",strconv.Itoa(binlogDiskUsageRate))
 		PublicClass.InspectionResult.DatabasePerformance.PerformanceStatus.BinlogDiskUsageRate = append(PublicClass.InspectionResult.DatabasePerformance.PerformanceStatus.BinlogDiskUsageRate,d)
-		PublicClass.Loggs.Error("The current database binlog is using too many disk writes. It is recommended to modify the \"binlog_cache_size\" parameter")
+		PublicClass.Loggs.Error(" PF1-01 The current database binlog is using too many disk writes. It is recommended to modify the \"binlog_cache_size\" parameter")
 	}else{
 		var d = make(map[string]string)
 		d["threshold"] = ">100%"
@@ -54,7 +54,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) DatabasePerformanceStatusCheck
 		d["checkStatus"] = "abnormal"    //异常
 		d["currentValue"] = fmt.Sprintf("%s=%s","historyConnectionMaxUsageRate",strconv.Itoa(historyConnectionMaxUsageRate))
 		PublicClass.InspectionResult.DatabasePerformance.PerformanceStatus.HistoryConnectionMaxUsageRate = append(PublicClass.InspectionResult.DatabasePerformance.PerformanceStatus.HistoryConnectionMaxUsageRate,d)
-		PublicClass.Loggs.Error("If the maximum usage of historical database connections exceeds \"80%\", change the \"max_connections\" value and check services")
+		PublicClass.Loggs.Error(" PF1-02 If the maximum usage of historical database connections exceeds \"80%\", change the \"max_connections\" value and check services")
 	}else{
 		var d = make(map[string]string)
 		d["threshold"] = ">80%"
@@ -76,7 +76,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) DatabasePerformanceStatusCheck
 		d["binlogDiskUsageRate"] = strconv.Itoa(tmpDiskTableUsageRate)
 		d["currentValue"] = fmt.Sprintf("%s=%s","tmpDiskTableUsageRate",strconv.Itoa(tmpDiskTableUsageRate))
 		PublicClass.InspectionResult.DatabasePerformance.PerformanceStatus.TmpDiskTableUsageRate = append(PublicClass.InspectionResult.DatabasePerformance.PerformanceStatus.TmpDiskTableUsageRate,d)
-		PublicClass.Loggs.Error("Too many disk temporary tables are being used. Check the slow SQL log or parameters \"tmp_table_size\" and \"max_heap_table_size\"")
+		PublicClass.Loggs.Error(" PF1-03 Too many disk temporary tables are being used. Check the slow SQL log or parameters \"tmp_table_size\" and \"max_heap_table_size\"")
 	}else{
 		var d = make(map[string]string)
 		d["threshold"] = ">25%"
@@ -97,7 +97,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) DatabasePerformanceStatusCheck
 		d["checkStatus"] = "abnormal"    //异常
 		d["currentValue"] = fmt.Sprintf("%s=%s","tmpDiskfileUsageRate",strconv.Itoa(tmpDiskfileUsageRate))
 		PublicClass.InspectionResult.DatabasePerformance.PerformanceStatus.TmpDiskfileUsageRate = append(PublicClass.InspectionResult.DatabasePerformance.PerformanceStatus.TmpDiskfileUsageRate,d)
-		PublicClass.Loggs.Error("Too many disk temporary file are being used. Check the slow SQL log or parameters \"tmp_table_size\" and \"max_heap_table_size\"")
+		PublicClass.Loggs.Error(" PF1-04 Too many disk temporary file are being used. Check the slow SQL log or parameters \"tmp_table_size\" and \"max_heap_table_size\"")
 	}else{
 		var d = make(map[string]string)
 		d["threshold"] = ">10%"
@@ -123,7 +123,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) DatabasePerformanceStatusCheck
 		d["checkStatus"] = "abnormal"    //异常
 		d["currentValue"] = fmt.Sprintf("%s=%s","innodbBufferPoolUsageRate",strconv.Itoa(innodbBufferPoolUsageRate))
 		PublicClass.InspectionResult.DatabasePerformance.PerformanceStatus.InnodbBufferPoolUsageRate = append(PublicClass.InspectionResult.DatabasePerformance.PerformanceStatus.InnodbBufferPoolUsageRate,d)
-		PublicClass.Loggs.Warn("The InnoDB buffer pool usage is lower than 80%")
+		PublicClass.Loggs.Warn(" PF1-05 The InnoDB buffer pool usage is lower than 80%")
 	}else{
 		var d = make(map[string]string)
 		d["threshold"] = "<80%"
@@ -143,7 +143,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) DatabasePerformanceStatusCheck
 		d["checkStatus"] = "abnormal"    //异常
 		d["currentValue"] = fmt.Sprintf("%s=%s","innodbBufferPoolDirtyPagesRate",strconv.Itoa(innodbBufferPoolDirtyPagesRate))
 		PublicClass.InspectionResult.DatabasePerformance.PerformanceStatus.InnodbBufferPoolDirtyPagesRate = append(PublicClass.InspectionResult.DatabasePerformance.PerformanceStatus.InnodbBufferPoolDirtyPagesRate,d)
-		PublicClass.Loggs.Warn("The proportion of dirty pages in the MySQL InnoDB buffer pool exceeds \"50%\"")
+		PublicClass.Loggs.Warn(" PF1-06 The proportion of dirty pages in the MySQL InnoDB buffer pool exceeds \"50%\"")
 	}else{
 		var d = make(map[string]string)
 		d["threshold"] = ">50%"
@@ -163,7 +163,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) DatabasePerformanceStatusCheck
 		d["checkStatus"] = "abnormal"    //异常
 		d["currentValue"] = fmt.Sprintf("%s=%s","innodbBufferPoolHitRate",strconv.Itoa(100-innodbBufferPoolHitRate))
 		PublicClass.InspectionResult.DatabasePerformance.PerformanceStatus.InnodbBufferPoolHitRate = append(PublicClass.InspectionResult.DatabasePerformance.PerformanceStatus.InnodbBufferPoolHitRate,d)
-		PublicClass.Loggs.Warn("The cache hit ratio of MySQL InnoDB buffer pool is too low. You are advised to increase the size of \"innoDB buffer pool\"")
+		PublicClass.Loggs.Warn(" PF1-07 The cache hit ratio of MySQL InnoDB buffer pool is too low. You are advised to increase the size of \"innoDB buffer pool\"")
 	}else{
 		var d = make(map[string]string)
 		d["threshold"] = "<99%"
@@ -184,7 +184,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) DatabasePerformanceStatusCheck
 		d["checkStatus"] = "abnormal"    //异常
 		d["currentValue"] = fmt.Sprintf("%s=%s","openFileUsageRate",strconv.Itoa(openFileUsageRate))
 		PublicClass.InspectionResult.DatabasePerformance.PerformanceStatus.OpenFileUsageRate = append(PublicClass.InspectionResult.DatabasePerformance.PerformanceStatus.OpenFileUsageRate,d)
-		PublicClass.Loggs.Warn("If the database file handle usage reaches \"75%\", you are advised to adjust the \"open_files_LIMIT\" parameter")
+		PublicClass.Loggs.Warn(" PF1-08 If the database file handle usage reaches \"75%\", you are advised to adjust the \"open_files_LIMIT\" parameter")
 	}else{
 		var d = make(map[string]string)
 		d["threshold"] = ">75%"
@@ -205,7 +205,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) DatabasePerformanceStatusCheck
 		d["checkStatus"] = "abnormal"    //异常
 		d["currentValue"] = fmt.Sprintf("%s=%s","openTableCacheUsageRate",strconv.Itoa(openTableCacheUsageRate))
 		PublicClass.InspectionResult.DatabasePerformance.PerformanceStatus.OpenTableCacheUsageRate = append(PublicClass.InspectionResult.DatabasePerformance.PerformanceStatus.OpenTableCacheUsageRate,d)
-		PublicClass.Loggs.Warn("Database open table cache usage exceeds \"80%\", you are advised to adjust the \"table_open_cache\" parameter")
+		PublicClass.Loggs.Warn(" PF1-09 Database open table cache usage exceeds \"80%\", you are advised to adjust the \"table_open_cache\" parameter")
 	}else{
 		var d = make(map[string]string)
 		d["threshold"] = ">80%"
@@ -227,7 +227,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) DatabasePerformanceStatusCheck
 		d["checkStatus"] = "abnormal"    //异常
 		d["currentValue"] = fmt.Sprintf("%s=%s","openTableCacheOverflowsUsageRate",strconv.Itoa(openTableCacheOverflowsUsageRate))
 		PublicClass.InspectionResult.DatabasePerformance.PerformanceStatus.OpenTableCacheOverflowsUsageRate = append(PublicClass.InspectionResult.DatabasePerformance.PerformanceStatus.OpenTableCacheOverflowsUsageRate,d)
-		PublicClass.Loggs.Warn("If the tablespace cache overflow usage is greater than \"10%\", you are advised to adjust the \"table_open_cache\" parameter")
+		PublicClass.Loggs.Warn(" PF1-10 If the tablespace cache overflow usage is greater than \"10%\", you are advised to adjust the \"table_open_cache\" parameter")
 	}else{
 		var d = make(map[string]string)
 		d["threshold"] = ">10%"
@@ -248,7 +248,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) DatabasePerformanceStatusCheck
 		d["checkStatus"] = "abnormal"    //异常
 		d["currentValue"] = fmt.Sprintf("%s=%s","selectScanUsageRate",strconv.Itoa(selectScanUsageRate))
 		PublicClass.InspectionResult.DatabasePerformance.PerformanceStatus.SelectScanUsageRate = append(PublicClass.InspectionResult.DatabasePerformance.PerformanceStatus.SelectScanUsageRate,d)
-		PublicClass.Loggs.Warn("The database does not use indexes. If the full table scan usage exceeds \"10%\", You are advised to check the slow SQL")
+		PublicClass.Loggs.Warn(" PF1-11 The database does not use indexes. If the full table scan usage exceeds \"10%\", You are advised to check the slow SQL")
 	}else{
 		var d = make(map[string]string)
 		d["threshold"] = ">10%"
@@ -268,7 +268,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) DatabasePerformanceStatusCheck
 		d["checkStatus"] = "abnormal"    //异常
 		d["currentValue"] = fmt.Sprintf("%s=%s","selectfullJoinScanUsageRate",strconv.Itoa(selectfullJoinScanUsageRate))
 		PublicClass.InspectionResult.DatabasePerformance.PerformanceStatus.SelectfullJoinScanUsageRate = append(PublicClass.InspectionResult.DatabasePerformance.PerformanceStatus.SelectfullJoinScanUsageRate,d)
-		PublicClass.Loggs.Warn("The database uses the JOIN statement and the non-driver table does not use the index. The full table scan usage is greater than \"10%\". You are advised to check for slow SQL")
+		PublicClass.Loggs.Warn(" PF1-12 The database uses the JOIN statement and the non-driver table does not use the index. The full table scan usage is greater than \"10%\". You are advised to check for slow SQL")
 	}else{
 		var d = make(map[string]string)
 		d["threshold"] = ">10%"
@@ -316,7 +316,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) DatabasePerformanceTableIndexC
 				if unsignedIntUsageRate,err := PublicClass.Strea.Percentage(v["AUTO_INCREMENT"],MunsignedInt);err ==nil && unsignedIntUsageRate >=85{
 					e["checkStatus"] = "abnormal"
 					e["currentValue"] = fmt.Sprintf("%s.%s",v["TABLE_SCHEMA"],v["TABLE_NAME"])
-					PublicClass.Loggs.Warn(fmt.Sprintf("The self-value-added usage of tables in the database exceeds \"85%%\", causing data type overflow risks. The details are as follows: Database: \"%v\", table name: \"%v\", increment column name: \"%v\", increment column data type: \"%v\", current increment values: \"%v\"",v["TABLE_SCHEMA"],v["TABLE_NAME"],tmpColumnName,tmpColumnType,v["AUTO_INCREMENT"]))
+					PublicClass.Loggs.Warn(fmt.Sprintf(" PF2-01 The self-value-added usage of tables in the database exceeds \"85%%\", causing data type overflow risks. The details are as follows: Database: \"%v\", table name: \"%v\", increment column name: \"%v\", increment column data type: \"%v\", current increment values: \"%v\"",v["TABLE_SCHEMA"],v["TABLE_NAME"],tmpColumnName,tmpColumnType,v["AUTO_INCREMENT"]))
 				} else{
 					e["checkStatus"] = "normal"
 				}
@@ -324,7 +324,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) DatabasePerformanceTableIndexC
 			}else{
 				if intUsageRate,err := PublicClass.Strea.Percentage(v["AUTO_INCREMENT"],Mint);err ==nil && intUsageRate >=85{
 					e["checkStatus"] = "abnormal"
-					PublicClass.Loggs.Warn(fmt.Sprintf("The self-value-added usage of tables in the database exceeds 85%%, causing data type overflow risks. The details are as follows: Database: \"%v\", table name: \"%v\", increment column name: \"%v\", increment column data type: \"%v\", current increment values: \"%v\"",v["TABLE_SCHEMA"],v["TABLE_NAME"],tmpColumnName,tmpColumnType,v["AUTO_INCREMENT"]))
+					PublicClass.Loggs.Warn(fmt.Sprintf(" PF2-01 The self-value-added usage of tables in the database exceeds 85%%, causing data type overflow risks. The details are as follows: Database: \"%v\", table name: \"%v\", increment column name: \"%v\", increment column data type: \"%v\", current increment values: \"%v\"",v["TABLE_SCHEMA"],v["TABLE_NAME"],tmpColumnName,tmpColumnType,v["AUTO_INCREMENT"]))
 				}else{
 					e["checkStatus"] = "normal"
 				}
@@ -344,7 +344,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) DatabasePerformanceTableIndexC
 			m["checkStatus"] = "abnormal"
 			m["currentValue"] = fmt.Sprintf("%s.%s",v["TABLE_SCHEMA"],v["TABLE_NAME"])
 			PublicClass.InspectionResult.DatabasePerformance.PerformanceTableIndex.TableRows = append(PublicClass.InspectionResult.DatabasePerformance.PerformanceTableIndex.TableRows, m)
-			PublicClass.Loggs.Warn(fmt.Sprintf("The current table is a large table if the number of rows is greater than 5 million and the average line length is greater than 10KB. The details are as follows: Database: \"%v\", table name: \"%v\", tableRows: \"%v\", avgRowLength：\"%d\"",v["TABLE_SCHEMA"],v["TABLE_NAME"],tableRows,avgRowLength/1024))
+			PublicClass.Loggs.Warn(fmt.Sprintf(" PF2-02 The current table is a large table if the number of rows is greater than 5 million and the average line length is greater than 10KB. The details are as follows: Database: \"%v\", table name: \"%v\", tableRows: \"%v\", avgRowLength：\"%d\"",v["TABLE_SCHEMA"],v["TABLE_NAME"],tableRows,avgRowLength/1024))
 		} else {
 			m["checkStatus"] = "normal"
 			PublicClass.InspectionResult.DatabasePerformance.PerformanceTableIndex.TableRows = append(PublicClass.InspectionResult.DatabasePerformance.PerformanceTableIndex.TableRows, m)
@@ -364,7 +364,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) DatabasePerformanceTableIndexC
 			n["checkStatus"] = "abnormal"
 			n["currentValue"] = fmt.Sprintf("%s.%s",v["TABLE_SCHEMA"],v["TABLE_NAME"])
 			PublicClass.InspectionResult.DatabasePerformance.PerformanceTableIndex.DiskFragmentationRate = append(PublicClass.InspectionResult.DatabasePerformance.PerformanceTableIndex.DiskFragmentationRate, n)
-			PublicClass.Loggs.Warn(fmt.Sprintf("If the current tablespace contains more than 6 GB and the disk fragmentation rate is greater than 30%%, you are advised to run THE ALTER command to delete disk fragmentation. The details are as follows: Database: \"%v\", table name: \"%v\", Table space size: \"%dG\", diskFragmentationRate：\"%d\"",v["TABLE_SCHEMA"],v["TABLE_NAME"],dataLengthTotal/1024/1024/1024,diskFragmentationRate))
+			PublicClass.Loggs.Warn(fmt.Sprintf(" PF2-03 If the current tablespace contains more than 6 GB and the disk fragmentation rate is greater than 30%%, you are advised to run THE ALTER command to delete disk fragmentation. The details are as follows: Database: \"%v\", table name: \"%v\", Table space size: \"%dG\", diskFragmentationRate：\"%d\"",v["TABLE_SCHEMA"],v["TABLE_NAME"],dataLengthTotal/1024/1024/1024,diskFragmentationRate))
 		} else {
 			n["diskFragmentationRate"] = strconv.Itoa(diskFragmentationRate)
 			n["checkStatus"] = "normal"
@@ -382,7 +382,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) DatabasePerformanceTableIndexC
 			o["checkStatus"] = "abnormal"
 			o["currentValue"] = fmt.Sprintf("%s.%s",v["TABLE_SCHEMA"],v["TABLE_NAME"])
 			PublicClass.InspectionResult.DatabasePerformance.PerformanceTableIndex.BigTable = append(PublicClass.InspectionResult.DatabasePerformance.PerformanceTableIndex.BigTable, o)
-			PublicClass.Loggs.Warn(fmt.Sprintf("If the number of rows in the current table is greater than 1000W and the tablespace is greater than 30G, the table belongs to a large table. Recommended Attention Table. The details are as follows: Database: \"%v\", table name: \"%v\", tableRows：\"%d\", Table space size: \"%dG\"",v["TABLE_SCHEMA"],v["TABLE_NAME"],tableRows,dataLengthTotal/1024/1024/1024))
+			PublicClass.Loggs.Warn(fmt.Sprintf(" PF2-04 If the number of rows in the current table is greater than 1000W and the tablespace is greater than 30G, the table belongs to a large table. Recommended Attention Table. The details are as follows: Database: \"%v\", table name: \"%v\", tableRows：\"%d\", Table space size: \"%dG\"",v["TABLE_SCHEMA"],v["TABLE_NAME"],tableRows,dataLengthTotal/1024/1024/1024))
 		} else {
 			o["checkStatus"] = "normal"
 			PublicClass.InspectionResult.DatabasePerformance.PerformanceTableIndex.BigTable = append(PublicClass.InspectionResult.DatabasePerformance.PerformanceTableIndex.BigTable, o)
@@ -406,7 +406,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) DatabasePerformanceTableIndexC
 			p["checkStatus"] = "abnormal"
 			p["currentValue"] = fmt.Sprintf("%s.%s",v["TABLE_SCHEMA"],v["TABLE_NAME"])
 			PublicClass.InspectionResult.DatabasePerformance.PerformanceTableIndex.ColdTable = append(PublicClass.InspectionResult.DatabasePerformance.PerformanceTableIndex.ColdTable, p)
-			PublicClass.Loggs.Error(fmt.Sprintf("The current table has not been updated for seven days (no DML has occurred against the table). The details are as follows: Database: \"%v\", table name: \"%v\", lasterUpdateTime：\"%v\" ",v["TABLE_SCHEMA"],v["TABLE_NAME"],tableUpdateTime))
+			PublicClass.Loggs.Error(fmt.Sprintf(" PF2-05 The current table has not been updated for seven days (no DML has occurred against the table). The details are as follows: Database: \"%v\", table name: \"%v\", lasterUpdateTime：\"%v\" ",v["TABLE_SCHEMA"],v["TABLE_NAME"],tableUpdateTime))
 		} else {
 
 			p["checkStatus"] = "normal"
