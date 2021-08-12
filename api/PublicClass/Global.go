@@ -10,8 +10,6 @@ import (
 type InspectionResultsStruct struct {
 	DatabaseConfigCheck DatabaseConfigCheckResultStruct
 	DatabaseBaselineCheck DatabaseBaselineCheckStruct
-	//BaselineCheckUserPriDesign BaselineCheckUserPriDesignResultStruct
-	//BaselineCheckPortDesign BaselineCheckPortDesignResultStruct
 	DatabasePerformance DatabasePerformanceCheckStruct
 	DatabaseSecurity  DatabaseSecurityCheckStruct
 }

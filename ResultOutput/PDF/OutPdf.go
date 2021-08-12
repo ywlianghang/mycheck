@@ -13,10 +13,6 @@ type OutPutWayInter interface {
 
 func (out *OutputWayStruct) pdfinit() *gofpdf.Fpdf{
 	pdf := gofpdf.New("P", "mm", "A4", "")
-	//添加一页
-	//pdf.AddPage()
-	//将字体加载进来
-	//AddUTF8Font("给字体起个别名", "", "fontPath")
 	pdf.AddUTF8Font("simfang", "", "./lib/simfang.ttf")
 	return pdf
 }
@@ -28,6 +24,10 @@ func (out *OutputWayStruct) OutPdf() {
 	pdf = out.pdfinit()
 
 	pdf.AddPage()
+
+	//标题头
+	//pdf = out.pdfTitleModule(pdf)
+
 	//标题一
 	out.pdfPrimaryTitleModule(pdf,"一、巡检介绍")
 	titlew := []float64{50.0, 50.0, 40.0, 40.0}

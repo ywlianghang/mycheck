@@ -13,8 +13,6 @@ import (
 	"time"
 )
 
-
-
 type LogStruct struct {
 	Logfile string             //日志文件
 	LogMaxAge time.Duration    //日志最大生存时间
@@ -76,7 +74,6 @@ func (logg *LogStruct) logOutputFile(logglevel ,logInfo interface{}) {
 	} else if logg.LoggLevel == "error"{
 		log.SetLevel(logrus.ErrorLevel)
 	}
-
 	switch logglevel {
 		case "debug":
 			log.Debug(logInfo)

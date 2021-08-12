@@ -22,7 +22,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckUserPriDesign() {
 			d["errorCode"] = "US1-01"
 			d["currentValue"] = fmt.Sprintf("%s@%s",cc["user"],cc["host"])
 			PublicClass.InspectionResult.DatabaseSecurity.UserPriDesign.AnonymousUsers = append(PublicClass.InspectionResult.DatabaseSecurity.UserPriDesign.AnonymousUsers,d)
-			PublicClass.Loggs.Error(fmt.Sprintf("Anonymous users currently exist. The information is as follows: user: \"%s\" host: \"%s\"",cc["user"],cc["host"]))
+			PublicClass.Loggs.Error(fmt.Sprintf(" US1-01 Anonymous users currently exist. The information is as follows: user: \"%s\" host: \"%s\"",cc["user"],cc["host"]))
 		}else{
 			d["checkStatus"] = "normal"    //正常
 			d["checkType"] = "anonymousUsers"
@@ -37,7 +37,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckUserPriDesign() {
 			m["errorCode"] = "US1-02"
 			m["currentValue"] = fmt.Sprintf("%s@%s",cc["user"],cc["host"])
 			PublicClass.InspectionResult.DatabaseSecurity.UserPriDesign.EmptyPasswordUser = append(PublicClass.InspectionResult.DatabaseSecurity.UserPriDesign.EmptyPasswordUser,m)
-			PublicClass.Loggs.Error(fmt.Sprintf("The current username password is empty. The information is as follows: user: \"%s\" host: \"%s\"",cc["user"],cc["host"]))
+			PublicClass.Loggs.Error(fmt.Sprintf(" US1-02 The current username password is empty. The information is as follows: user: \"%s\" host: \"%s\"",cc["user"],cc["host"]))
 		}else{
 			m["checkStatus"] = "normal"    //异常
 			m["checkType"] = "emptyPasswordUser"
@@ -52,7 +52,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckUserPriDesign() {
 			n["errorCode"] = "US1-03"
 			n["currentValue"] = fmt.Sprintf("%s@%s",cc["user"],cc["host"])
 			PublicClass.InspectionResult.DatabaseSecurity.UserPriDesign.RootUserRemoteLogin = append(PublicClass.InspectionResult.DatabaseSecurity.UserPriDesign.RootUserRemoteLogin,n)
-			PublicClass.Loggs.Error(fmt.Sprintf("The root user is currently in remote login danger. The information is as follows: user: \"%s\" host: \"%s\"",cc["user"],cc["host"]))
+			PublicClass.Loggs.Error(fmt.Sprintf(" US1-03 The root user is currently in remote login danger. The information is as follows: user: \"%s\" host: \"%s\"",cc["user"],cc["host"]))
 		}else{
 			n["checkStatus"] = "normal"    //异常
 			n["checkType"] = "rootUserRemoteLogin"
@@ -67,7 +67,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckUserPriDesign() {
 			o["errorCode"] = "US1-04"
 			o["currentValue"] = fmt.Sprintf("%s@%s",cc["user"],cc["host"])
 			PublicClass.InspectionResult.DatabaseSecurity.UserPriDesign.NormalUserConnectionUnlimited = append(PublicClass.InspectionResult.DatabaseSecurity.UserPriDesign.NormalUserConnectionUnlimited,o)
-			PublicClass.Loggs.Error(fmt.Sprintf("The current user name has no connection IP limit. The information is as follows: user: \"%s\" host: \"%s\"",cc["user"],cc["host"]))
+			PublicClass.Loggs.Error(fmt.Sprintf(" US1-04 The current user name has no connection IP limit. The information is as follows: user: \"%s\" host: \"%s\"",cc["user"],cc["host"]))
 		}else{
 			o["checkStatus"] = "normal"    //异常
 			o["checkType"] = "normalUserConnectionUnlimited"
@@ -83,7 +83,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckUserPriDesign() {
 			p["errorCode"] = "US1-05"
 			p["currentValue"] = fmt.Sprintf("%s@%s",cc["user"],cc["host"])
 			PublicClass.InspectionResult.DatabaseSecurity.UserPriDesign.UserPasswordSame = append(PublicClass.InspectionResult.DatabaseSecurity.UserPriDesign.UserPasswordSame,p)
-			PublicClass.Loggs.Error(fmt.Sprintf("Different users in the current database use the same password, please change it. The information is as follows: user1: \"%v@%v\"  user2: \"%s@%s\"",tmpUser,tmpHost,cc["user"],cc["host"]))
+			PublicClass.Loggs.Error(fmt.Sprintf(" US1-05 Different users in the current database use the same password, please change it. The information is as follows: user1: \"%v@%v\"  user2: \"%s@%s\"",tmpUser,tmpHost,cc["user"],cc["host"]))
 		}else{
 			p["checkStatus"] = "normal"    //异常
 			p["checkType"] = "userPasswordSame"
@@ -106,9 +106,9 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckUserPriDesign() {
 				q["errorCode"] = "US1-06"
 				q["currentValue"] = fmt.Sprintf("%s@%s",cc["user"],cc["host"])
 				PublicClass.InspectionResult.DatabaseSecurity.UserPriDesign.NormalUserDatabaseAllPrivilages = append(PublicClass.InspectionResult.DatabaseSecurity.UserPriDesign.NormalUserDatabaseAllPrivilages,q)
-				PublicClass.Loggs.Error(fmt.Sprintf("Cross-user permissions currently exist (ON *.*). The information is as follows: user@host: \"%s@%s\"",cc["user"],cc["host"]))
+				PublicClass.Loggs.Error(fmt.Sprintf(" US1-06 Cross-user permissions currently exist (ON *.*). The information is as follows: user@host: \"%s@%s\"",cc["user"],cc["host"]))
 			} else{
-				q["checkStatus"] = "abnormal"    //异常
+				q["checkStatus"] = "normal"    //异常
 				q["checkType"] = "normalUserDatabaseAllPrivilages"
 				PublicClass.InspectionResult.DatabaseSecurity.UserPriDesign.NormalUserDatabaseAllPrivilages = append(PublicClass.InspectionResult.DatabaseSecurity.UserPriDesign.NormalUserDatabaseAllPrivilages,q)
 			}
@@ -121,7 +121,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckUserPriDesign() {
 				r["errorCode"] = "US1-07"
 				r["currentValue"] = fmt.Sprintf("%s@%s",cc["user"],cc["host"])
 				PublicClass.InspectionResult.DatabaseSecurity.UserPriDesign.NormalUserSuperPrivilages = append(PublicClass.InspectionResult.DatabaseSecurity.UserPriDesign.NormalUserSuperPrivilages,r)
-				PublicClass.Loggs.Error(fmt.Sprintf("The current user has permission transfer (WITH GRANT OPTION). The information is as follows: user@host: \"%s@%s\"",cc["user"],cc["host"]))
+				PublicClass.Loggs.Error(fmt.Sprintf(" US1-07 The current user has permission transfer (WITH GRANT OPTION). The information is as follows: user@host: \"%s@%s\"",cc["user"],cc["host"]))
 			}else{
 				r["checkStatus"] = "normal"    //正常
 				r["checkType"] = "normalUserSuperPrivilages"
@@ -143,7 +143,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckPortDesign() {
 		d["threshold"] = "默认端口"
 		d["errorCode"] = "US2-01"
 		d["currentValue"] = fmt.Sprintf("port=%s",cc["port"])
-		PublicClass.Loggs.Error(fmt.Sprintf("The MySQL service uses the default port. The information is as follows: using port: %s.",cc["port"]))
+		PublicClass.Loggs.Error(fmt.Sprintf(" US2-01 The MySQL service uses the default port. The information is as follows: using port: %s.",cc["port"]))
 	}
 	PublicClass.InspectionResult.DatabaseSecurity.PortDesign.DatabasePort = append(PublicClass.InspectionResult.DatabaseSecurity.PortDesign.DatabasePort,d)
 }

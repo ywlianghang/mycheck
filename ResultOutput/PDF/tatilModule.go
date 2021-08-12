@@ -19,7 +19,7 @@ func (out *OutputWayStruct) pdfTitleModule(pdf *gofpdf.Fpdf) *gofpdf.Fpdf {
 		pdf.SetLineWidth(1)
 		pdf.CellFormat(wd, 10, titleStr, "1", 1, "CM", true, 0, "")
 		//第 5 个参数，实际效果是：指定下一行的位置
-		pdf.Ln(5)
+		pdf.Ln(1)
 	}, false)
 	return pdf
 }

@@ -29,7 +29,7 @@ func DatabaseConfigCheck(confParameterList map[string]string)  {
 			d["checkStatus"] = "abnormal"    //异常
 			d["threshold"] = configValue
 			d["currentValue"] = fmt.Sprintf("%s=%s",configVariablesName,a)
-			errorStrinfo := fmt.Sprintf("The current database configuration is \"%s\" Not meeting reservation requirements! The current value of \"%s\" You are advised to set it to \"%s\"",configVariablesName,a,configValue)
+			errorStrinfo := fmt.Sprintf(" CF1-01 The current database configuration is \"%s\" Not meeting reservation requirements! The current value of \"%s\" You are advised to set it to \"%s\"",configVariablesName,a,configValue)
 			pub.Loggs.Error(errorStrinfo)
 		}
 		pub.InspectionResult.DatabaseConfigCheck.ConfigParameter = append(pub.InspectionResult.DatabaseConfigCheck.ConfigParameter,d)
@@ -91,7 +91,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckTablesDesign() {
 			d["errorCode"] = "BL1-TC01"
 			d["currentValue"] = fmt.Sprintf("%s.%s",ist["TABLE_SCHEMA"],ist["TABLE_NAME"])
 			pub.InspectionResult.DatabaseBaselineCheck.TableDesign.TableCharset = append(pub.InspectionResult.DatabaseBaselineCheck.TableDesign.TableCharset,d)
-			pub.Loggs.Error(fmt.Sprintf("The current table character set is not UTF8 or UTF8MB4 character. error info: Database is \"%s\" table is \"%s\" table charset is \"%s\" ",ist["TABLE_SCHEMA"],ist["TABLE_NAME"],tableCharset))
+			pub.Loggs.Error(fmt.Sprintf(" BL1-TC01 The current table character set is not UTF8 or UTF8MB4 character. error info: Database is \"%s\" table is \"%s\" table charset is \"%s\" ",ist["TABLE_SCHEMA"],ist["TABLE_NAME"],tableCharset))
 		}else{
 			d["charset"] = tableCharset
 			d["checkStatus"] = "normal"    //异常
@@ -107,7 +107,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckTablesDesign() {
 			m["errorCode"] = "BL1-TC02"
 			m["currentValue"] = fmt.Sprintf("%s.%s",ist["TABLE_SCHEMA"],ist["TABLE_NAME"])
 			pub.InspectionResult.DatabaseBaselineCheck.TableDesign.TableEngine = append(pub.InspectionResult.DatabaseBaselineCheck.TableDesign.TableEngine,m)
-			pub.Loggs.Error(fmt.Sprintf("The current table engine set is not innodb engine. error info: Database is \"%s\" table is \"%s\" table engine is \"%s\" ",ist["TABLE_SCHEMA"],ist["TABLE_NAME"],ist["ENGINE"]))
+			pub.Loggs.Error(fmt.Sprintf(" BL1-TC02 The current table engine set is not innodb engine. error info: Database is \"%s\" table is \"%s\" table engine is \"%s\" ",ist["TABLE_SCHEMA"],ist["TABLE_NAME"],ist["ENGINE"]))
 		}
 		if ist["ENGINE"] != nil && strings.EqualFold(ist["ENGINE"].(string),"innodb"){
 			m["checkStatus"] = "normal"
@@ -132,7 +132,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckTablesDesign() {
 			d["constraintName"] = iskl["CONSTRAINT_NAME"].(string)
 			d["referencedTableName"] = iskl["REFERENCED_TABLE_NAME"].(string)
 			d["referencedColumnName"] = iskl["REFERENCED_COLUMN_NAME"].(string)
-			pub.Loggs.Error(fmt.Sprintf("The current table uses a foreign key constraint. The information is as follows: database: \"%s\" "+
+			pub.Loggs.Error(fmt.Sprintf(" BL1-TC03 The current table uses a foreign key constraint. The information is as follows: database: \"%s\" "+
 				"tableName: \"%s\" column: \"%s\" Foreign key constraint name: \"%s\" Foreign key constraints table: \"%s\""+
 				"Foreign key constraints columns: \"%s\"", iskl["databaseName"], iskl["tableName"], iskl["columnName"], iskl["CONSTRAINT_NAME"], iskl["REFERENCED_TABLE_NAME"], iskl["REFERENCED_COLUMN_NAME"]))
 			pub.InspectionResult.DatabaseBaselineCheck.TableDesign.TableForeign = append(pub.InspectionResult.DatabaseBaselineCheck.TableDesign.TableForeign, d)
@@ -159,7 +159,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckTablesDesign() {
 				dd["errorCode"] = "BL1-TC04"
 				dd["currentValue"] = fmt.Sprintf("%s.%s",icd["TABLE_SCHEMA"],icd["TABLE_NAME"])
 				pub.InspectionResult.DatabaseBaselineCheck.TableDesign.TableNoPrimaryKey = append(pub.InspectionResult.DatabaseBaselineCheck.TableDesign.TableNoPrimaryKey,dd)
-				pub.Loggs.Error(fmt.Sprintf("The current table has no primary key. error info: Database is \"%s\" table is \"%s\"",icd["TABLE_SCHEMA"],icd["TABLE_NAME"]))
+				pub.Loggs.Error(fmt.Sprintf(" BL1-TC04 The current table has no primary key. error info: Database is \"%s\" table is \"%s\"",icd["TABLE_SCHEMA"],icd["TABLE_NAME"]))
 			}
 		}
 		ke = icd["TABLE_SCHEMA"].(string)
@@ -185,7 +185,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckColumnsDesign(){
 				d["errorCode"] = "BL2-CC01"
 				d["currentValue"] = fmt.Sprintf("%s.%s",icd["TABLE_SCHEMA"],icd["TABLE_NAME"])
 				pub.InspectionResult.DatabaseBaselineCheck.ColumnDesign.TableAutoIncrement = append(pub.InspectionResult.DatabaseBaselineCheck.ColumnDesign.TableAutoIncrement,d)
-				pub.Loggs.Error(fmt.Sprintf("The primary key column is not of type Bigint. The information is as follows: database: \"%s\" tableName: \"%s\" columnsName: \"%s\" columnType: \"%s\".", icd["TABLE_SCHEMA"],icd["TABLE_NAME"],icd["COLUMN_NAME"],icd["COLUMN_TYPE"]))
+				pub.Loggs.Error(fmt.Sprintf(" BL2-CC01 The primary key column is not of type Bigint. The information is as follows: database: \"%s\" tableName: \"%s\" columnsName: \"%s\" columnType: \"%s\".", icd["TABLE_SCHEMA"],icd["TABLE_NAME"],icd["COLUMN_NAME"],icd["COLUMN_TYPE"]))
 			}else {
 				d["checkStatus"] = "normal"    //异常
 				d["checkType"] = "tableAutoIncrement"
@@ -203,7 +203,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckColumnsDesign(){
 					m["errorCode"] = "BL2-CC02"
 					m["currentValue"] = fmt.Sprintf("%s.%s",icd["TABLE_SCHEMA"],icd["TABLE_NAME"])
 					pub.InspectionResult.DatabaseBaselineCheck.ColumnDesign.TableBigColumns = append(pub.InspectionResult.DatabaseBaselineCheck.ColumnDesign.TableBigColumns, m)
-					pub.Loggs.Error(fmt.Sprintf("The column data types of the current table in the database exist BLOB, TEXT, TIMESTAMP. The information is as follows: database: \"%s\" tableName: \"%s\" columnsName: \"%s\" columnType: \"%s\".", icd["TABLE_SCHEMA"], icd["TABLE_NAME"],icd["COLUMN_NAME"], icd["COLUMN_TYPE"]))
+					pub.Loggs.Error(fmt.Sprintf(" BL2-CC02 The column data types of the current table in the database exist BLOB, TEXT, TIMESTAMP. The information is as follows: database: \"%s\" tableName: \"%s\" columnsName: \"%s\" columnType: \"%s\".", icd["TABLE_SCHEMA"], icd["TABLE_NAME"],icd["COLUMN_NAME"], icd["COLUMN_TYPE"]))
 				} else {
 					m["checkStatus"] = "normal" //正常
 					m["checkType"] = "tableBigColumns"
@@ -243,7 +243,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckIndexColumnDesign
 				d["errorCode"] = "BL3-IC01"
 				d["currentValue"] = fmt.Sprintf("%s.%s",icd["TABLE_SCHEMA"],icd["TABLE_NAME"])
 				pub.InspectionResult.DatabaseBaselineCheck.IndexColumnsDesign.IndexColumnIsNull = append(pub.InspectionResult.DatabaseBaselineCheck.IndexColumnsDesign.IndexColumnIsNull, d)
-				pub.Loggs.Error(fmt.Sprintf("An index column is empty.The information is as follows: database: \"%s\"  tablename: \"%s\" indexName: \"%s\" columnName: \"%s\" columnType: \"%s\"", icd["TABLE_SCHEMA"], icd["TABLE_NAME"], tmpMap[v], icd["COLUMN_NAME"], icd["COLUMN_TYPE"]))
+				pub.Loggs.Error(fmt.Sprintf(" BL3-IC01 An index column is empty.The information is as follows: database: \"%s\"  tablename: \"%s\" indexName: \"%s\" columnName: \"%s\" columnType: \"%s\"", icd["TABLE_SCHEMA"], icd["TABLE_NAME"], tmpMap[v], icd["COLUMN_NAME"], icd["COLUMN_TYPE"]))
 			} else {
 				d["checkStatus"] = "normal" //异常
 				d["checkType"] = "indexColumnIsNull"
@@ -260,7 +260,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckIndexColumnDesign
 				m["errorCode"] = "BL3-IC01"
 				m["currentValue"] = fmt.Sprintf("%s.%s",icd["TABLE_SCHEMA"],icd["TABLE_NAME"])
 				pub.InspectionResult.DatabaseBaselineCheck.IndexColumnsDesign.IndexColumnIsEnumSet = append(pub.InspectionResult.DatabaseBaselineCheck.IndexColumnsDesign.IndexColumnIsEnumSet, m)
-				pub.Loggs.Error(fmt.Sprintf("An index column is enum or set type. The information is as follows: The information is as follows: database: \"%s\"  tablename: \"%s\" indexName: \"%s\" columnName: \"%s\" columnType: \"%s\"", icd["TABLE_SCHEMA"], icd["TABLE_NAME"], tmpMap[v], icd["COLUMN_NAME"], icd["COLUMN_TYPE"]))
+				pub.Loggs.Error(fmt.Sprintf(" BL3-IC01 An index column is enum or set type. The information is as follows: The information is as follows: database: \"%s\"  tablename: \"%s\" indexName: \"%s\" columnName: \"%s\" columnType: \"%s\"", icd["TABLE_SCHEMA"], icd["TABLE_NAME"], tmpMap[v], icd["COLUMN_NAME"], icd["COLUMN_TYPE"]))
 			} else {
 				m["checkStatus"] = "normal" //异常
 				m["checkType"] = "indexColumnIsEnumSet"
@@ -275,7 +275,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckIndexColumnDesign
 				n["errorCode"] = "BL3-IC02"
 				n["currentValue"] = fmt.Sprintf("%s.%s",icd["TABLE_SCHEMA"],icd["TABLE_NAME"])
 				pub.InspectionResult.DatabaseBaselineCheck.IndexColumnsDesign.IndexColumnIsBlobText = append(pub.InspectionResult.DatabaseBaselineCheck.IndexColumnsDesign.IndexColumnIsBlobText, n)
-				pub.Loggs.Error(fmt.Sprintf("An index column is blob or text type. The information is as follows: The information is as follows: database: \"%s\"  tablename: \"%s\" indexName: \"%s\" columnName: \"%s\" columnType: \"%s\"", icd["databaseName"], icd["tableName"], icd["indexName"], icd["columnName"], icd["columnType"]))
+				pub.Loggs.Error(fmt.Sprintf(" BL3-IC02 An index column is blob or text type. The information is as follows: The information is as follows: database: \"%s\"  tablename: \"%s\" indexName: \"%s\" columnName: \"%s\" columnType: \"%s\"", icd["databaseName"], icd["tableName"], icd["indexName"], icd["columnName"], icd["columnType"]))
 			} else {
 				n["checkStatus"] = "normal" //正常
 				n["checkType"] = "indexColumnIsBlobText"
@@ -342,7 +342,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckIndexColumnDesign
 			d["threshold"] = "存在重复索引"
 			d["errorCode"] = "BL3-IC03"
 			d["currentValue"] = fmt.Sprintf("%s.%s", tmpDatabase, tmpTablename)
-			pub.Loggs.Error(fmt.Sprintf("Redundant index columns appear. The information is as follows: database:\"%s\" tablename: \"%s\" Redundant indexes: (indexName:\"%s\" indexColumns \"%s\"), (indexName: \"%s\" indexColumns: \"%s\")", tmpDatabase,tmpTablename,tmpIndexRedundancyName,tmpIndexRedundancyColumn,tmpIndexColumnName,tmpIndexIncludeColumn))
+			pub.Loggs.Error(fmt.Sprintf(" BL3-IC03 Redundant index columns appear. The information is as follows: database:\"%s\" tablename: \"%s\" Redundant indexes: (indexName:\"%s\" indexColumns \"%s\"), (indexName: \"%s\" indexColumns: \"%s\")", tmpDatabase,tmpTablename,tmpIndexRedundancyName,tmpIndexRedundancyColumn,tmpIndexColumnName,tmpIndexIncludeColumn))
 		}
 		pub.InspectionResult.DatabaseBaselineCheck.IndexColumnsDesign.IndexColumnIsRepeatIndex = append(pub.InspectionResult.DatabaseBaselineCheck.IndexColumnsDesign.IndexColumnIsRepeatIndex,d)
 	}
@@ -363,7 +363,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckProcedureTriggerD
 			d["errorCode"] = "BL4-PT01"
 			d["currentValue"] = fmt.Sprintf("%s.%s",cc["ROUTINE_SCHEMA"],cc["ROUTINE_NAME"])
 			pub.InspectionResult.DatabaseBaselineCheck.ProcedureTriggerDesign.TableProcedure = append(pub.InspectionResult.DatabaseBaselineCheck.ProcedureTriggerDesign.TableProcedure,d)
-			pub.Loggs.Error(fmt.Sprintf("The current database uses a storage procedure. The information is as follows: database: \"%s\" routineName: \"%s\" user: \"%s\" create time: \"%s\"" ,cc["ROUTINE_SCHEMA"],cc["ROUTINE_NAME"],cc["DEFINER"],cc["CREATED"]))
+			pub.Loggs.Error(fmt.Sprintf(" BL4-PT01 The current database uses a storage procedure. The information is as follows: database: \"%s\" routineName: \"%s\" user: \"%s\" create time: \"%s\"" ,cc["ROUTINE_SCHEMA"],cc["ROUTINE_NAME"],cc["DEFINER"],cc["CREATED"]))
 		}
 		m := newMap(d)
 		if cc["ROUTINE_TYPE"] == "FUNCTION" {
@@ -371,9 +371,9 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckProcedureTriggerD
 			m["checkType"] = "tableFunc"
 			m["threshold"] = "存在存储函数"
 			m["errorCode"] = "BL4-PT02"
-			m["currentValue"] = fmt.Sprintf("%s",cc["ROUTINE_SCHEMA"])
+			m["currentValue"] = fmt.Sprintf("%s.%s",cc["ROUTINE_SCHEMA"],cc["ROUTINE_NAME"])
 			pub.InspectionResult.DatabaseBaselineCheck.ProcedureTriggerDesign.TableFunc = append(pub.InspectionResult.DatabaseBaselineCheck.ProcedureTriggerDesign.TableFunc,m)
-			pub.Loggs.Error(fmt.Sprintf("The current database uses a storage function . The information is as follows: database: \"%s\" routineName: \"%s\" user: \"%s\" create time: \"%s\"" ,cc["ROUTINE_SCHEMA"],cc["ROUTINE_NAME"],cc["DEFINER"],cc["CREATED"]))
+			pub.Loggs.Error(fmt.Sprintf(" BL4-PT02 The current database uses a storage function . The information is as follows: database: \"%s\" routineName: \"%s\" user: \"%s\" create time: \"%s\"" ,cc["ROUTINE_SCHEMA"],cc["ROUTINE_NAME"],cc["DEFINER"],cc["CREATED"]))
 		}
 	}
 	// 检查是否使用触发器
@@ -388,7 +388,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckProcedureTriggerD
 			d["errorCode"] = "BL4-PT03"
 			d["currentValue"] = fmt.Sprintf("%s.%s",dd["TRIGGER_SCHEMA"],dd["TRIGGER_NAME"])
 			pub.InspectionResult.DatabaseBaselineCheck.ProcedureTriggerDesign.TableTrigger = append(pub.InspectionResult.DatabaseBaselineCheck.ProcedureTriggerDesign.TableTrigger,d)
-			pub.Loggs.Error(fmt.Sprintf("The current database uses a trigger. The information is as follows: database: \"%s\" triggerName: \"%s\"  user: \"%s\"  create time:\"%s\"" ,dd["TRIGGER_SCHEMA"],dd["TRIGGER_NAME"],dd["DEFINER"],dd["CREATED"]))
+			pub.Loggs.Error(fmt.Sprintf(" BL4-PT03 The current database uses a trigger. The information is as follows: database: \"%s\" triggerName: \"%s\"  user: \"%s\"  create time:\"%s\"" ,dd["TRIGGER_SCHEMA"],dd["TRIGGER_NAME"],dd["DEFINER"],dd["CREATED"]))
 		}
 	}
 	pub.Loggs.Info("Check whether the database is completed using stored programs, stored functions, and stored triggers")

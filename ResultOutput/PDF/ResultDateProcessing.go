@@ -24,27 +24,27 @@ func (out *OutputWayStruct) tmpaa(checkNum,checkType string,ast []map[string]str
 	return aa
 }
 //配置参数结果汇总
-func (out *OutputWayStruct) tmpConfigCheckResultSummary(checkType string,ast []map[string]string) [][]string{
-	var bb [][]string
-	var tmpThreshold,tmpCheckValue,tmpCheckName string
-	var tmpEque = 0
-	for v := range ast{
-		if ast[v]["checkStatus"] == "abnormal" && ast[v]["checkType"] == checkType{
-			var aa []string
-			tmpEque ++
-			tmpCheckName = ast[v]["configVariableName"]
-			tmpThreshold = ast[v]["configValue"]
-			tmpCheckValue = fmt.Sprintf("%s=%s",ast[v]["configVariableName"],ast[v]["configVariable"])
-			aa = append(aa,strconv.Itoa(tmpEque))
-			aa = append(aa,tmpCheckName)
-			aa = append(aa,tmpThreshold)
-			aa = append(aa," ")
-			aa = append(aa,tmpCheckValue)
-			bb = append(bb,aa)
-		}
-	}
-	return bb
-}
+//func (out *OutputWayStruct) tmpConfigCheckResultSummary(checkType string,ast []map[string]string) [][]string{
+//	var bb [][]string
+//	var tmpThreshold,tmpCheckValue,tmpCheckName string
+//	var tmpEque = 0
+//	for v := range ast{
+//		if ast[v]["checkStatus"] == "abnormal" && ast[v]["checkType"] == checkType{
+//			var aa []string
+//			tmpEque ++
+//			tmpCheckName = ast[v]["configVariableName"]
+//			tmpThreshold = ast[v]["configValue"]
+//			tmpCheckValue = fmt.Sprintf("%s=%s",ast[v]["configVariableName"],ast[v]["configVariable"])
+//			aa = append(aa,strconv.Itoa(tmpEque))
+//			aa = append(aa,tmpCheckName)
+//			aa = append(aa,tmpThreshold)
+//			aa = append(aa," ")
+//			aa = append(aa,tmpCheckValue)
+//			bb = append(bb,aa)
+//		}
+//	}
+//	return bb
+//}
 
 func (out *OutputWayStruct) tmpcc(checkRulest []map[string]string) []string {
 	var bc []string
