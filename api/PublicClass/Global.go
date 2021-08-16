@@ -4,6 +4,9 @@ import (
 	"DepthInspection/api/Stream"
 	"DepthInspection/api/loggs"
 	"fmt"
+	"os"
+	"runtime"
+	"strings"
 )
 
 //顶级目录
@@ -130,11 +133,37 @@ var InformationSchemaTriggers,MysqlUser []map[string]interface{}
 var CheckBeginTime,CheckEndTime string
 var CheckTimeConsuming int64
 
+func PathExists(path string){
+	_, err := os.Stat(path)
+	if os.IsNotExist(err) {
+		if strings.Contains(path,".\\") || strings.Contains(path,"./"){
+			if pathdir,err2 := os.Getwd();err2 ==nil{
+				tmppath := pathdir + path[1:]
+				sysType := runtime.GOOS
+				var aa int
+				if sysType == "linux"{
+					aa = strings.LastIndex(tmppath,"/")
+				}
+				if sysType == "windows"{
+					aa = strings.LastIndex(tmppath,"\\")
+				}
+				path2 :=  tmppath[:aa]
+				err1 := os.MkdirAll(path2, os.ModePerm)
+				if err1 != nil{
+					fmt.Println(err1)
+					os.Exit(1)
+				}
+			}
+		}
+	}
+}
+
 func ConfigInit() {
 	//读取配置文件
 	getConf := Info.GetConf()
 	dbConnInfo := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s",getConf.DBinfo.Username,getConf.DBinfo.Password,
 		getConf.DBinfo.Host,getConf.DBinfo.Port,getConf.DBinfo.Database,getConf.DBinfo.Charset)
+	PathExists(getConf.Logs.OutputFile.Logfile)
 	Logconfig = &loggs.LogStruct{
 		LoggLevel: getConf.Logs.Loglevel,
 		Logfile: getConf.Logs.OutputFile.Logfile,

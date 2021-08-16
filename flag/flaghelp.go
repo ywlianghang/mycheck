@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/urfave/cli"
 	"os"
+	"runtime"
+	"strings"
 )
 
 type parameter struct {
@@ -21,7 +23,7 @@ func cliHelp(){
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name: "config,c", //命令名称
-			Usage: "Loading a Configuration File. for example： --config=/tmp/logs.ymal", //命令说明
+			Usage: "Loading a Configuration File. for example： --config=/tmp/mycheck.ymal", //命令说明
 			Value:  "nil",                                                            //默认值
 			Destination: &CheckParameter.Config,                                                                 //赋值
 		},
@@ -39,6 +41,22 @@ func cliHelp(){
 		if aa[i] == "--version" || aa[i] == "-v"{
 			CheckParameter.helpbool = true
 			os.Exit(1)
+		}
+		if strings.Contains(aa[i],"--config") {
+			if !strings.Contains(CheckParameter.Config,"/") && !strings.Contains(CheckParameter.Config,"\\"){
+				pathdir,err := os.Getwd()
+				if err != nil{
+					fmt.Println(err)
+					os.Exit(1)
+				}
+				sysType := runtime.GOOS
+				if sysType == "linux"{
+					CheckParameter.Config = fmt.Sprintf("%s/%s",pathdir,CheckParameter.Config)
+				}
+				if sysType == "windows"{
+					CheckParameter.Config = fmt.Sprintf("%s\\%s",pathdir,CheckParameter.Config)
+				}
+			}
 		}
 	}
 
