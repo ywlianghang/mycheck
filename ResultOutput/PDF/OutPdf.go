@@ -13,7 +13,7 @@ type OutPutWayInter interface {
 
 func (out *OutputWayStruct) pdfinit() *gofpdf.Fpdf{
 	pdf := gofpdf.New("P", "mm", "A4", "")
-	pdf.AddUTF8Font("simfang", "", "./lib/simfang.ttf")
+	pdf.AddUTF8Font("simfang", "", "./simfang.ttf")
 	return pdf
 }
 
