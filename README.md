@@ -89,7 +89,7 @@
     （3）其他待续
 
     4）问题反馈
-      如果在使用中有什么问题，或者有什么好的建议及想法，欢迎随时发送到邮箱ywlianghang@gmail.com或ywlianghang@163.com或liangxing@greatdb.com
+      如果在使用中有什么问题，或者有什么好的建议及想法，欢迎随时发送到邮箱ywlianghang@gmail.com或ywlianghang@163.com或xing.liang@greatdb.com
       注：如果新添巡检功能或巡检项，请写出巡检方法，巡检阈值及巡检意义
 
 ------
