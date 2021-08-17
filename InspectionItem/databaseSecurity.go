@@ -48,7 +48,7 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckUserPriDesign() {
 		if cc["user"] == "root" && cc["host"] != "localhost" && cc["host"] != "127.0.0.1"{
 			n["checkStatus"] = "abnormal"    //异常
 			n["checkType"] = "rootUserRemoteLogin"
-			n["threshold"] = "空密码用户"
+			n["threshold"] = "root远端访问"
 			n["errorCode"] = "US1-03"
 			n["currentValue"] = fmt.Sprintf("%s@%s",cc["user"],cc["host"])
 			PublicClass.InspectionResult.DatabaseSecurity.UserPriDesign.RootUserRemoteLogin = append(PublicClass.InspectionResult.DatabaseSecurity.UserPriDesign.RootUserRemoteLogin,n)
