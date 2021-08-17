@@ -120,7 +120,7 @@
         help, h  Shows a list of commands or help for one command
 
     GLOBAL OPTIONS:
-        --config value, -c value  Loading a Configuration File. for example： --config=/tmp/mycheck.ymal (default: "nil")
+        --config value, -c value  Loading a Configuration File. for example： --config /tmp/mycheck.ymal (default: "nil")
         --help, -h                show help
         --version, -v             print the version
 

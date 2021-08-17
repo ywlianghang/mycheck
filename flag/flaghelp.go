@@ -23,7 +23,7 @@ func cliHelp(){
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name: "config,c", //命令名称
-			Usage: "Loading a Configuration File. for example： --config=/tmp/mycheck.ymal", //命令说明
+			Usage: "Loading a Configuration File. for example： --config /tmp/mycheck.ymal", //命令说明
 			Value:  "nil",                                                            //默认值
 			Destination: &CheckParameter.Config,                                                                 //赋值
 		},
