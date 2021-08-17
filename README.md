@@ -128,7 +128,7 @@
 ## Examples ##
 
      1) 执行巡检命令方式一
-     shell> ./mycheck --config mycheck
+     shell> ./mycheck --config mycheck.ymal
      2）执行巡检命令方式二
      shell> ./mycheck --config /tmp/mycheck.ymal
     
