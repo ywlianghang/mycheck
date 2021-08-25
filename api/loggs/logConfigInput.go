@@ -12,6 +12,8 @@ type BaseInfo struct {
 	Logs LogsEntity `yaml:"logs"`
 	DBinfo DBinfoEntity `yaml:"dbinfo"`
 	ResultOutput ResultOutputFileEntity `yaml:"resultOutput"`
+	InspectionConfSwitch InspectionConfSwitchFileEntity `yaml:"inspectionConfSwitch"`
+	InspectionConfInput InspectionConfInputFileEntity `yaml:"inspectionConfInput"`
 }
 type DBinfoEntity struct {
 	DirverName string `yaml:"dirverName"`
@@ -42,6 +44,17 @@ type ResultOutputFileEntity struct {
 	OutputFile string `yaml:"outputFile"`
 	InspectionPersonnel string  `yaml:"inspectionPersonnel"`
 	InspectionLevel string `yaml:"inspectionLevel"`
+}
+type InspectionConfSwitchFileEntity struct {
+	ConfigSwitch  map[string]string `yaml:"configSwitch"`
+}
+type InspectionConfInputFileEntity struct {
+	DatabaseEnvironment  []map[string]string `yaml:"databaseEnvironment"`
+	DatabaseConfiguration []map[string]string `yaml:"databaseConfiguration"`
+	DatabasePerformance []map[string]string `yaml:"databasePerformance"`
+	DatabaseBaseline []map[string]string `yaml:"databaseBaseline"`
+	DatabaseSecurity []map[string]string `yaml:"databaseSecurity"`
+	DatabaseSpace []map[string]string `yaml:"databaseSpace"`
 }
 
 func (conf *BaseInfo) GetConf() BaseInfo {

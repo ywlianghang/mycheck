@@ -15,9 +15,10 @@ func main() {
 	PublicClass.CheckBeginTime = time.Now().Format("2006-01-02 15:04:05")
 	flag.ParameterCheck()
 	PublicClass.ConfigInit()
+	PublicClass.YamlconfigInit()
 	//查询数据初始化，将用到的数据初始化到内存中
 	PublicClass.QueryDbDateInit()
-	InspectionItem.DatabaseConfigCheck(PublicClass.Ccc)
+	InspectionItem.DatabaseConfigCheck(PublicClass.ConfigurationCanCheck)
 	var c = &InspectionItem.DatabaseBaselineCheckStruct{}
 	c.BaselineCheckTablesDesign()
 	c.BaselineCheckColumnsDesign()

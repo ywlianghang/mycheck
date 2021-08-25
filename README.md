@@ -78,7 +78,7 @@
         1.5.07 检查实例是否存在普通用户supr权限（WITH GRANT OPTION）（巡检项：normalUserSuperPrivilages）
         1.5.08 检查实例是否使用默认端口（3306）（巡检项：databasePort）
 
-    2）mycheck下个版本改动：
+    2）mycheck下个版本改动(已完成)：
     （1）将配置参数检查外放，通过配置文件可进行自定义参数检测
     （2）将巡检项进行外放，通过配置文件可进行巡检项控制（通过false、true选择是否检测该项）
     （3）将巡检项阈值进行外放，通过配置文件可进行阈值调整（超过阈值才会出现在pdf巡检报告中）
@@ -89,7 +89,7 @@
     （3）其他待续
 
     4）问题反馈
-      如果在使用中有什么问题，或者有什么好的建议及想法，欢迎随时发送到邮箱ywlianghang@gmail.com或ywlianghang@163.com或liangxing@greatdb.com
+      如果在使用中有什么问题，或者有什么好的建议及想法，欢迎随时发送到邮箱ywlianghang@gmail.com或ywlianghang@163.com或xing.liang@greatdb.com
       注：如果新添巡检功能或巡检项，请写出巡检方法，巡检阈值及巡检意义
 
 ------
@@ -128,7 +128,7 @@
 ## Examples ##
 
      1) 执行巡检命令方式一
-     shell> ./mycheck --config mycheck
+     shell> ./mycheck --config mycheck.ymal
      2）执行巡检命令方式二
      shell> ./mycheck --config /tmp/mycheck.ymal
     

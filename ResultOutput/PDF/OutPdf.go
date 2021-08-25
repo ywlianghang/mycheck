@@ -77,8 +77,8 @@ func (out *OutputWayStruct) OutPdf() {
 	pdf.MultiCell(0, 5, string("3.4 巡检数据库基线"), "", "", false)
 	pdf = out.pdfTableBodyColorsFormat(pdf,w3,cd)
 	tmpCheckTypeSliect = []string{"tableCharset","tableEngine","tableForeign","tableNoPrimaryKey","tableAutoIncrement",
-		"tableBigColumns","indexColumnIsNull","indexColumnIsEnumSet","indexColumnIsBlobText","tableIncludeRepeatIndex",
-	"tableProcedure","tableFunc","tableTrigger"}
+		"tableBigColumns","indexColumnIsNull","indexColumnType","tableIncludeRepeatIndex",
+	"tableProcedureFunc","tableTrigger"}
 	tmpResultBaselineResult := out.tmpResultSummary(tmpCheckTypeSliect)
 	pdf = out.pdfTableInsert(pdf,w3,tmpResultBaselineResult)
 	pdf.Ln(-1)

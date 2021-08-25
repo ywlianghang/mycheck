@@ -1,29 +1,217 @@
 #输出被巡检的数据库信息（目前只支持MySQL）
 dbinfo:
-  dirverName: mysql         #指定数据库类型
-  username: pcms            #指定连接数据库的用户名
-  password: pcms@123        #指定连接数据库的密码
-  host: 172.16.50.161       #指定连接数据库的ip地址
-  port: 3306                #指定连接数据库的port
-  database: information_schema  #指定默认连接的数据库，非必选项，
-  charset: utf8             #指定连接数据库时的字符集
-  dbConnIdleTime: 100       #指定会话的空闲时间
-  maxIdleConns: 100         #指定最大的空闲连接数
+  dirverName: mysql                                             #指定数据库类型
+  username: pcms                                                #指定连接数据库的用户名
+  password: "pcms@123"                                          #指定连接数据库的密码
+  host: 172.16.50.161                                           #指定连接数据库的ip地址
+  port: 3306                                                    #指定连接数据库的port
+  database: information_schema                                  #指定默认连接的数据库，非必选项，
+  charset: utf8                                                 #指定连接数据库时的字符集
+  dbConnIdleTime: 100                                           #指定会话的空闲时间
+  maxIdleConns: 100                                             #指定最大的空闲连接数
 
 #输出日志信息
 logs:
-  loglevel: error            #定义日志输出级别
-  outputFile:               #日志输出设置
-    logfile: .\log\aab       #日志路径，可以为绝对路径也可以为相对路径。例如：D:\\goProject\\DepthInspection\\log\\aab
-    logMaxAge: 100          #日志最大生存时间
-    isConsole: true         #针对输出日志信息中的日志级别是否有颜色
-    rotationTime: 100       #日志轮转时间
-    skip: 10                #日志输出代码向上查找的层级，建议不要修改
+  loglevel: error                                               #定义日志输出级别
+  outputFile:                                                   #日志输出设置
+    logfile: .\log\aab                                          #日志路径，可以为绝对路径也可以为相对路径。例如：D:\\goProject\\DepthInspection\\log\\aab
+    logMaxAge: 100                                              #日志最大生存时间
+    isConsole: true                                             #针对输出日志信息中的日志级别是否有颜色
+    rotationTime: 100                                           #日志轮转时间
+    skip: 10                                                    #日志输出代码向上查找的层级，建议不要修改
 
 #巡检结果集输出
 resultOutput:
-  outputWay: pdf            #将结果集汇总输出到pdf中，并产生可视化报告
-  outputPath: .\           #生成的pdf的路径，全路径或当前绝对路径
-  outputFile: MySQL DepthInspection Result Report.pdf   #输出结果的pdf文件名
-  inspectionPersonnel: golang  #在pdf报告中会在巡检人员中显示该值
-  inspectionLevel: 重保巡检     #在pdf报告中会在巡检等级中显示该值
+  outputWay: pdf                                                #将结果集汇总输出到pdf中，并产生可视化报告
+  outputPath: .\                                                #生成的pdf的路径，全路径或当前绝对路径
+  outputFile: MySQL DepthInspection Result Report.pdf           #输出结果的pdf文件名
+  inspectionPersonnel: golang                                   #在pdf报告中会在巡检人员中显示该值
+  inspectionLevel: 重保巡检                                       #在pdf报告中会在巡检等级中显示该值
+
+#巡检项开关设置
+inspectionConfSwitch:
+  configSwitch:
+    databaseEnvironmentSwitch: true                             #是否巡检数据库环境，值为true 或 false
+    databaseConfigurationSwitch: true                           #是否巡检数据库配置，值为true或false
+    databasePerformanceSwitch: true                             #是否巡检数据库性能，值为true或false
+    databaseBaselineSwitch: true                                #是否巡检数据库基线，值为true或false
+    databaseSecuritySwitch: true                                #是否巡检数据库安全，值为true或false
+    databaseSpaceSwitch: true                                   #是否巡检数据库空间，值为true或false
+
+#巡检项配置文件定义
+inspectionConfInput:
+  databaseEnvironment:                                          #是否巡检数据库环境，值为true 或 false
+  databaseConfiguration:                                        #是否巡检数据库配置（此选项可根据自己的环境进项参数增加，按照格式对应就可以）
+    - checkconfiguration: super_read_only                       #检测MySQL配置参数super_read_only
+      checkThreshold: off                                       #检测阈值，如果当前值部位off，则会视为异常
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: read_only
+      checkThreshold: true
+      subCheckSwitch: true
+    - checkconfiguration: innodb_read_only
+      checkThreshold: off
+      subCheckSwitch: true
+    - checkconfiguration: binlog_format
+      checkThreshold: row
+      subCheckSwitch: true
+    - checkconfiguration: character_set_server
+      checkThreshold: utf8
+      subCheckSwitch: true
+    - checkconfiguration: default_authentication_plugin
+      checkThreshold: mysql_native_password
+      subCheckSwitch: true
+    - checkconfiguration: default_storage_engine
+      checkThreshold: innodb
+      subCheckSwitch: true
+    - checkconfiguration: default_tmp_storage_engine
+      checkThreshold: innodb
+      subCheckSwitch: true
+    - checkconfiguration: innodb_flush_log_at_trx_commit
+      checkThreshold: 1
+      subCheckSwitch: true
+    - checkconfiguration: innodb_flush_method
+      checkThreshold: O_DIRECT
+      subCheckSwitch: true
+    - checkconfiguration: innodb_deadlock_detect
+      checkThreshold: on
+      subCheckSwitch: true
+    - checkconfiguration: internal_tmp_disk_storage_engine
+      checkThreshold: innodb
+      subCheckSwitch: true
+    - checkconfiguration: query_cache_type
+      checkThreshold: off
+      subCheckSwitch: true
+    - checkconfiguration: relay_log_purge
+      checkThreshold: on
+      subCheckSwitch: true
+    - checkconfiguration: relay_log_recovery
+      checkThreshold: on
+      subCheckSwitch: true
+    - checkconfiguration: sync_binlog
+      checkThreshold: 1
+      subCheckSwitch: true
+    - checkconfiguration: system_time_zone
+      checkThreshold: CST
+      subCheckSwitch: true
+    - checkconfiguration: time_zone
+      checkThreshold: system
+      subCheckSwitch: true
+    - checkconfiguration: transaction_isolation
+      checkThreshold: READ-COMMITTED
+      subCheckSwitch: true
+    - checkconfiguration: transaction_read_only
+      checkThreshold: off
+      subCheckSwitch: true
+    - checkconfiguration: tx_isolation
+      checkThreshold: READ-COMMITTED
+      subCheckSwitch: true
+    - checkconfiguration: tx_read_only
+      checkThreshold: off
+      subCheckSwitch: true
+    - checkconfiguration: unique_checks
+      checkThreshold: on
+      subCheckSwitch: true
+
+  databasePerformance:                                          #是否巡检数据库性能
+    - checkconfiguration: binlogDiskUsageRate                   #检测binlog磁盘利用率(请勿修改)
+      checkThreshold: 100                                       #binlog落盘是使用磁盘的百分比阈值 >100%
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: historyConnectionMaxUsageRate         #检测历史连接数最大使用率(请勿修改)
+      checkThreshold: 80                                        #最大连接数使用率百分比阈值 >80%
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: tmpDiskTableUsageRate                 #检测临时表磁盘使用率(请勿修改)
+      checkThreshold: 25                                        #磁盘临时表使用率百分比阈值 >25%
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: tmpDiskfileUsageRate                  #检测临时磁盘文件使用率(请勿修改)
+      checkThreshold: 25                                        #磁盘临时文件使用率百分比阈值  >25%
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: innodbBufferPoolUsageRate             #检测innodb buffer pool使用率(请勿修改)
+      checkThreshold: 80                                        #innodb buffer pool利用率百分比阈值，<80%
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: innodbBufferPoolDirtyPagesRate        #检测innodb buffer pool 中脏页率(请勿修改)
+      checkThreshold: 50                                        #脏页率百分比阈值     >50%
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: innodbBufferPoolHitRate               #检测innodb buffer pool命中率(请勿修改)
+      checkThreshold: 99                                        #innodb buffer pool命中率阈值   <99%
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: openFileUsageRate                     #检测文件句柄使用率(请勿修改)
+      checkThreshold: 75                                        #文件句柄使用率百分比阈值         >75%
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: openTableCacheUsageRate               #检测表缓存使用率(请勿修改)
+      checkThreshold: 80                                        #表缓存使用率百分比阈值           >80%
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: openTableCacheOverflowsUsageRate      #检测表缓存溢出率(请勿修改)
+      checkThreshold: 10                                        #表缓存溢出百分比阈值             >10%
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: selectScanUsageRate                   #检测查询发生全表扫描率(请勿修改)
+      checkThreshold: 10                                        #select查询全表扫描百分比阈值      >10%
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: selectfullJoinScanUsageRate           #联表查询发生全表扫描率(请勿修改)
+      checkThreshold: 10                                        #发生联表查询全表扫描百分比阈值      >10%
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: tableAutoPrimaryKeyUsageRate          #检测表自增主键int类型使用率(请勿修改)
+      checkThreshold: 85                                        #int有符号和无符号的使用率百分比阈值  >85%
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: tableRows                             #检查表行数(请勿修改)
+      checkThreshold: 5000000,10                                #第一个参数为表行数阈值，第二个参数为平均行长度阈值，以逗号分割。 >5000000,10k
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: diskFragmentationRate                 #检查表空间磁盘碎片率(请勿修改)
+      checkThreshold: 6,30                                      #第一个参数为单表表空间大小阈值（单位为G），第二个为磁盘碎片率（单位%）阈值，以逗号分割。单表大于6G，磁盘碎片率>30%
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: bigTable                              #检测是否存在大表(请勿修改)
+      checkThreshold: 10000000,30                               #第一个参数为表的行数量阈值，第二个参数为表空间大小阈值（单位为G）以逗号分割。单表大于1千万，表空间大小>30G
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: coldTable                             #检测当前表是否为冷表(请勿修改)
+      checkThreshold: 7                                         #检测当前表7day内没有进行更新的表
+      subCheckSwitch: true                                     #该检测项的开关，为true则检测该项，为false则不检测该项
+
+  databaseBaseline:                                             #是否巡检数据库基线，值为true或false
+    - checkconfiguration: tableCharset                          #检测表字符集(请勿修改)
+      checkThreshold: utf8,utf8mb4                              #是否检测表字符集非utf8或utf8mb4
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: tableEngine                           #检测表引擎使用情况(请勿修改)
+      checkThreshold: innodb                                    #是否检测表引擎为非
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: tableForeign                          #检测是否存在外键约束(请勿修改)
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: tableNoPrimaryKey                     #检测表是否有自增主键(请勿修改)
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: tableAutoIncrement                    #检测自增主键数据类型(请勿修改)
+      checkThreshold: bigint                                    #自增主键非bigint类型
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: tableBigColumns                       #检测表是否存在大列类型(请勿修改)
+      checkThreshold: text,timestamp,blob                       #表中是否存在大字段类型（text,timestamp,blob）
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: indexColumnIsNull                     #检测索引列是否为空(请勿修改)
+      checkThreshold: yes                                       #判断索引列类型是否允许为空,索引列类型是否为enum，set，blob，text
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: indexColumnType                       #检测索引列类型(请勿修改)
+      checkThreshold: enum,set,blob,text                        #判断索引列类型是否为enum，set，blob，text
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: tableIncludeRepeatIndex               #检测表中是否存在冗余索引(请勿修改)
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: tableProcedureFuncTrigger             #检测存储过程、函数、触发器使用情况(请勿修改)
+      checkThreshold: procedure,function,trigger                #判断是否使用存储过程、存储函数、触发器
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+
+  databaseSecurity:                                             #是否巡检数据库安全，值为true或false
+    - checkconfiguration: anonymousUsers                        #判断是否存在匿名用户(请勿修改)
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: emptyPasswordUser                     #判断是否存在空密码用户(请勿修改)
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: rootUserRemoteLogin                   #判断是否存在root用户远程访问(请勿修改)
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: normalUserConnectionUnlimited         #判断是否存在用户连接无限制 user@'%'(请勿修改)
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: userPasswordSame                      #判断是否存在多个用户密码相同(请勿修改)
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: normalUserDatabaseAllPrivilages       #判断是否存在多个用户密码相同(请勿修改)
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: normalUserSuperPrivilages             #判断是否存在多个用户密码相同(请勿修改)
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+    - checkconfiguration: databasePort                          #判断数据库是否使用默认端口(请勿修改)
+      checkThreshold: 3306                                      #检测端口的阈值，检测数据库使用端口是否使用3306
+      subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
+
+  databaseSpace:                                                #是否巡检数据库空间，值为true或false
+
