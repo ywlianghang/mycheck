@@ -50,9 +50,8 @@ type BaselineCheckColumnDesignResultStruct struct{
 	TableBigColumns []map[string]string
 }
 type BaselineCheckIndexColumnDesignResultStruct struct{
+	IndexColumnType []map[string]string
 	IndexColumnIsNull []map[string]string
-	IndexColumnIsEnumSet []map[string]string
-	IndexColumnIsBlobText []map[string]string
 	IndexColumnIsRepeatIndex []map[string]string
 }
 type BaselineCheckProcedureTriggerDesignResultStruct struct{
@@ -104,6 +103,8 @@ var Loggs  loggs.LogOutputInterface
 var DBexecInter DatabaseOperation
 var Strea  *Stream.StreamStruct
 var ResultOutput *loggs.ResultOutputFileEntity
+var InspectionConfSwitch *loggs.InspectionConfSwitchFileEntity
+var InspectionConfInput *loggs.InspectionConfInputFileEntity
 
 //巡检结果结构体初始化
 //一级结构体初始化
@@ -185,11 +186,99 @@ func ConfigInit() {
 		InspectionPersonnel: getConf.ResultOutput.InspectionPersonnel,
 		InspectionLevel: getConf.ResultOutput.InspectionLevel,
 	}
+	InspectionConfSwitch = &loggs.InspectionConfSwitchFileEntity{
+		ConfigSwitch: getConf.InspectionConfSwitch.ConfigSwitch,
+	}
+	InspectionConfInput = &loggs.InspectionConfInputFileEntity{
+		DatabaseEnvironment: getConf.InspectionConfInput.DatabaseEnvironment,
+		DatabaseConfiguration: getConf.InspectionConfInput.DatabaseConfiguration,
+		DatabasePerformance: getConf.InspectionConfInput.DatabasePerformance,
+		DatabaseBaseline: getConf.InspectionConfInput.DatabaseBaseline,
+		DatabaseSecurity: getConf.InspectionConfInput.DatabaseSecurity,
+		DatabaseSpace: getConf.InspectionConfInput.DatabaseSpace,
+	}
 	Loggs = Logconfig
 	DBexecInter = Dbconfig
 	Strea = &Stream.StreamStruct{}
 }
-
+var (
+	ConfigurationCanCheck = make(map[string]string)
+	PerformanceCanCheck = make(map[string]string)
+	BaselineCanCheck = make(map[string]string)
+	SecurityCanCheck = make(map[string]string)
+)
+func YamlconfigInit(){
+	tmpStatusValCheck := "true false"
+	//检测配置开关参数是否设置合理，填写的true或false是否正确
+	for k,v := range InspectionConfSwitch.ConfigSwitch{
+		if !strings.Contains(tmpStatusValCheck, strings.ToLower(v)) {
+			fmt.Println(fmt.Sprintf("当前配置参数 %s 选项输入有误，只能输入是true或false", k))
+			os.Exit(1)
+		}
+	}
+	for k,v := range InspectionConfSwitch.ConfigSwitch{
+		//初始化配置参数，生成需要检测的列表
+		if strings.EqualFold(k,"databaseConfigurationSwitch") && strings.EqualFold(v,"true"){
+			for i := range InspectionConfInput.DatabaseConfiguration {
+				cc := InspectionConfInput.DatabaseConfiguration[i]
+				if !strings.Contains(tmpStatusValCheck, strings.ToLower(cc["subCheckSwitch"])) {
+					fmt.Println("当前配置参数subCheckSwitchch 选项输入有误，只能输入是true或false")
+					os.Exit(1)
+				}
+				if strings.EqualFold(cc["subCheckSwitch"], "true") {
+					key := strings.ToLower(cc["checkconfiguration"])
+					val := strings.ToLower(cc["checkThreshold"])
+					ConfigurationCanCheck[key] = val
+				}
+			}
+		}
+		//初始化性能列表，生成需要检测的列表
+		if strings.EqualFold(k,"databasePerformanceSwitch") && strings.EqualFold(v,"true"){
+			for i := range InspectionConfInput.DatabasePerformance {
+				cc := InspectionConfInput.DatabasePerformance[i]
+				if !strings.Contains(tmpStatusValCheck, strings.ToLower(cc["subCheckSwitch"])) {
+					fmt.Println("当前配置参数subCheckSwitchch 选项输入有误，只能输入是true或false")
+					os.Exit(1)
+				}
+				if strings.EqualFold(cc["subCheckSwitch"], "true") {
+					key := strings.ToLower(cc["checkconfiguration"])
+					val := strings.ToLower(cc["checkThreshold"])
+					PerformanceCanCheck[key] = val
+				}
+			}
+		}
+		//初始化基线检查列表，生成需要检测的列表
+		if strings.EqualFold(k,"databaseBaselineSwitch") && strings.EqualFold(v,"true"){
+			for i := range InspectionConfInput.DatabaseBaseline {
+				cc := InspectionConfInput.DatabaseBaseline[i]
+				if !strings.Contains(tmpStatusValCheck, strings.ToLower(cc["subCheckSwitch"])) {
+					fmt.Println("当前配置参数subCheckSwitchch 选项输入有误，只能输入是true或false")
+					os.Exit(1)
+				}
+				if strings.EqualFold(cc["subCheckSwitch"], "true") {
+					key := strings.ToLower(cc["checkconfiguration"])
+					val := strings.ToLower(cc["checkThreshold"])
+					BaselineCanCheck[key] = val
+				}
+			}
+		}
+		//初始化安全检查列表，生成需要检测的列表
+		if strings.EqualFold(k,"databaseSecuritySwitch") && strings.EqualFold(v,"true"){
+			for i := range InspectionConfInput.DatabaseSecurity {
+				cc := InspectionConfInput.DatabaseSecurity[i]
+				if !strings.Contains(tmpStatusValCheck, strings.ToLower(cc["subCheckSwitch"])) {
+					fmt.Println("当前配置参数subCheckSwitchch 选项输入有误，只能输入是true或false")
+					os.Exit(1)
+				}
+				if strings.EqualFold(cc["subCheckSwitch"], "true") {
+					key := strings.ToLower(cc["checkconfiguration"])
+					val := strings.ToLower(cc["checkThreshold"])
+					SecurityCanCheck[key] = val
+				}
+			}
+		}
+	}
+}
 func QueryDbDateInit(){
 	strSql = "show global variables"
 	a := DBexecInter.DBQueryDateMap(strSql)
@@ -216,29 +305,5 @@ func QueryDbDateInit(){
 	strSql = fmt.Sprintf("select user,host,authentication_string password from mysql.user")
 	MysqlUser = DBexecInter.DBQueryDateJson(strSql)
 
-}
-var Ccc = map[string]string {
-	"super_read_only" : "off",
-	"read_only" : "off",
-	"innodb_read_only": "off",
-	"binlog_format" : "row",
-	"character_set_server" : "utf8",
-	"default_authentication_plugin" : "mysql_native_password",
-	"default_storage_engine" : "innodb",
-	"default_tmp_storage_engine" : "innodb",
-	"innodb_flush_log_at_trx_commit" : "1",
-	"innodb_flush_method" : "O_DIRECT",
-	"innodb_deadlock_detect" : "on",
-	"internal_tmp_disk_storage_engine" : "innodb",
-	"query_cache_type" : "off",
-	"relay_log_purge" : "on",
-	"relay_log_recovery" : "on",
-	"sync_binlog" : "1",
-	"system_time_zone" : "CST",
-	"time_zone" : "system",
-	"transaction_isolation" : "READ-COMMITTED",
-	"transaction_read_only" : "off",
-	"tx_isolation" : "READ-COMMITTED",
-	"tx_read_only" : "off",
-	"unique_checks" : "on",
+
 }

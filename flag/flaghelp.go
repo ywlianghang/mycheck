@@ -19,7 +19,7 @@ func cliHelp(){
 	app.Usage = "In-depth inspection of MySQL for system guarantee and daily inspection during major festivals" //应用功能说明
 	app.Author = "lianghang"                           //作者
 	app.Email = "ywlianghang@gmail.com"                //邮箱
-	app.Version = "1.0"                              //版本
+	app.Version = "1.1"                              //版本
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name: "config,c", //命令名称

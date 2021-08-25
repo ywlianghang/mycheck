@@ -45,7 +45,46 @@ func (out *OutputWayStruct) tmpaa(checkNum,checkType string,ast []map[string]str
 //	}
 //	return bb
 //}
-
+var abcd = make(map[string][]map[string]string)
+func tmpInit() {
+	abcd["configParameter"] = pub.InspectionResult.DatabaseConfigCheck.ConfigParameter
+	abcd["tableCharset"] = pub.InspectionResult.DatabaseBaselineCheck.TableDesign.TableCharset
+	abcd["tableEngine"] = pub.InspectionResult.DatabaseBaselineCheck.TableDesign.TableEngine
+	abcd["tableNoPrimaryKey"] = pub.InspectionResult.DatabaseBaselineCheck.TableDesign.TableNoPrimaryKey
+	abcd["tableForeign"] = pub.InspectionResult.DatabaseBaselineCheck.TableDesign.TableForeign
+	abcd["tableAutoIncrement"] = pub.InspectionResult.DatabaseBaselineCheck.ColumnDesign.TableAutoIncrement
+	abcd["tableBigColumns"] = pub.InspectionResult.DatabaseBaselineCheck.ColumnDesign.TableBigColumns
+	abcd["indexColumnIsNull"] = pub.InspectionResult.DatabaseBaselineCheck.IndexColumnsDesign.IndexColumnIsNull
+	abcd["indexColumnType"] = pub.InspectionResult.DatabaseBaselineCheck.IndexColumnsDesign.IndexColumnType
+	abcd["tableIncludeRepeatIndex"] = pub.InspectionResult.DatabaseBaselineCheck.IndexColumnsDesign.IndexColumnIsRepeatIndex
+	abcd["tableProcedureFunc"] = pub.InspectionResult.DatabaseBaselineCheck.ProcedureTriggerDesign.TableProcedure
+	abcd["tableTrigger"] = pub.InspectionResult.DatabaseBaselineCheck.ProcedureTriggerDesign.TableTrigger
+	abcd["anonymousUsers"] = pub.InspectionResult.DatabaseSecurity.UserPriDesign.AnonymousUsers
+	abcd["emptyPasswordUser"] = pub.InspectionResult.DatabaseSecurity.UserPriDesign.EmptyPasswordUser
+	abcd["rootUserRemoteLogin"] = pub.InspectionResult.DatabaseSecurity.UserPriDesign.RootUserRemoteLogin
+	abcd["normalUserConnectionUnlimited"] = pub.InspectionResult.DatabaseSecurity.UserPriDesign.NormalUserConnectionUnlimited
+	abcd["userPasswordSame"] = pub.InspectionResult.DatabaseSecurity.UserPriDesign.UserPasswordSame
+	abcd["normalUserDatabaseAllPrivilages"] = pub.InspectionResult.DatabaseSecurity.UserPriDesign.NormalUserDatabaseAllPrivilages
+	abcd["normalUserSuperPrivilages"] = pub.InspectionResult.DatabaseSecurity.UserPriDesign.NormalUserSuperPrivilages
+	abcd["databasePort"] = pub.InspectionResult.DatabaseSecurity.PortDesign.DatabasePort
+	abcd["binlogDiskUsageRate"] = pub.InspectionResult.DatabasePerformance.PerformanceStatus.BinlogDiskUsageRate
+	abcd["historyConnectionMaxUsageRate"] = pub.InspectionResult.DatabasePerformance.PerformanceStatus.HistoryConnectionMaxUsageRate
+	abcd["tmpDiskTableUsageRate"] = pub.InspectionResult.DatabasePerformance.PerformanceStatus.TmpDiskTableUsageRate
+	abcd["tmpDiskfileUsageRate"] = pub.InspectionResult.DatabasePerformance.PerformanceStatus.TmpDiskfileUsageRate
+	abcd["innodbBufferPoolUsageRate"] = pub.InspectionResult.DatabasePerformance.PerformanceStatus.InnodbBufferPoolUsageRate
+	abcd["innodbBufferPoolDirtyPagesRate"] = pub.InspectionResult.DatabasePerformance.PerformanceStatus.InnodbBufferPoolDirtyPagesRate
+	abcd["innodbBufferPoolHitRate"] = pub.InspectionResult.DatabasePerformance.PerformanceStatus.InnodbBufferPoolHitRate
+	abcd["openFileUsageRate"] = pub.InspectionResult.DatabasePerformance.PerformanceStatus.OpenFileUsageRate
+	abcd["openTableCacheUsageRate"] = pub.InspectionResult.DatabasePerformance.PerformanceStatus.OpenTableCacheUsageRate
+	abcd["openTableCacheOverflowsUsageRate"] = pub.InspectionResult.DatabasePerformance.PerformanceStatus.OpenTableCacheOverflowsUsageRate
+	abcd["selectScanUsageRate"] = pub.InspectionResult.DatabasePerformance.PerformanceStatus.SelectScanUsageRate
+	abcd["selectfullJoinScanUsageRate"] = pub.InspectionResult.DatabasePerformance.PerformanceStatus.SelectfullJoinScanUsageRate
+	abcd["tableAutoPrimaryKeyUsageRate"] = pub.InspectionResult.DatabasePerformance.PerformanceTableIndex.TableAutoPrimaryKeyUsageRate
+	abcd["tableRows"] = pub.InspectionResult.DatabasePerformance.PerformanceTableIndex.TableRows
+	abcd["diskFragmentationRate"] = pub.InspectionResult.DatabasePerformance.PerformanceTableIndex.DiskFragmentationRate
+	abcd["bigTable"] = pub.InspectionResult.DatabasePerformance.PerformanceTableIndex.BigTable
+	abcd["coldTable"] = pub.InspectionResult.DatabasePerformance.PerformanceTableIndex.ColdTable
+}
 func (out *OutputWayStruct) tmpcc(checkRulest []map[string]string) []string {
 	var bc []string
 	var tmpCheckType, tmpThreshold, tmpErrorCode, tmpAbnormalInformation = "","","",""
@@ -75,95 +114,26 @@ func (out *OutputWayStruct) tmpcc(checkRulest []map[string]string) []string {
 
 func (out *OutputWayStruct) tmpResultSummary(CheckTypeSliect []string) [][]string{
 	var bc [][]string
-	var dd []map[string]string
+	//var dd []map[string]string
 	var cc []string
-	var tmpEQ int
+	tmpInit()
+	var tmpeqInt int
+	var tmpeqStr string
 	for i := range CheckTypeSliect{
-		switch CheckTypeSliect[i] {
-		case "configParameter":
-			dd = pub.InspectionResult.DatabaseConfigCheck.ConfigParameter
-		case "binlogDiskUsageRate":
-			dd = pub.InspectionResult.DatabasePerformance.PerformanceStatus.BinlogDiskUsageRate
-		case "historyConnectionMaxUsageRat":
-			dd = pub.InspectionResult.DatabasePerformance.PerformanceStatus.HistoryConnectionMaxUsageRate
-		case "tmpDiskTableUsageRate":
-			dd = pub.InspectionResult.DatabasePerformance.PerformanceStatus.TmpDiskTableUsageRate
-		case "tmpDiskfileUsageRate":
-			dd = pub.InspectionResult.DatabasePerformance.PerformanceStatus.TmpDiskfileUsageRate
-		case "innodbBufferPoolUsageRate":
-			dd = pub.InspectionResult.DatabasePerformance.PerformanceStatus.InnodbBufferPoolUsageRate
-		case "innodbBufferPoolDirtyPagesRate":
-			dd = pub.InspectionResult.DatabasePerformance.PerformanceStatus.InnodbBufferPoolDirtyPagesRate
-		case "innodbBufferPoolHitRate":
-			dd = pub.InspectionResult.DatabasePerformance.PerformanceStatus.InnodbBufferPoolHitRate
-		case "openFileUsageRate":
-			dd = pub.InspectionResult.DatabasePerformance.PerformanceStatus.OpenFileUsageRate
-		case "openTableCacheUsageRate":
-			dd = pub.InspectionResult.DatabasePerformance.PerformanceStatus.OpenTableCacheUsageRate
-		case "openTableCacheOverflowsUsageRate":
-			dd = pub.InspectionResult.DatabasePerformance.PerformanceStatus.OpenTableCacheOverflowsUsageRate
-		case "selectScanUsageRate":
-			dd = pub.InspectionResult.DatabasePerformance.PerformanceStatus.SelectScanUsageRate
-		case "selectfullJoinScanUsageRate":
-			dd = pub.InspectionResult.DatabasePerformance.PerformanceStatus.SelectfullJoinScanUsageRate
-		case "tableAutoPrimaryKeyUsageRate":
-			dd = pub.InspectionResult.DatabasePerformance.PerformanceTableIndex.TableAutoPrimaryKeyUsageRate
-		case "tableRows":
-			dd = pub.InspectionResult.DatabasePerformance.PerformanceTableIndex.TableRows
-		case "diskFragmentationRate":
-			dd = pub.InspectionResult.DatabasePerformance.PerformanceTableIndex.DiskFragmentationRate
-		case "bigTable":
-			dd = pub.InspectionResult.DatabasePerformance.PerformanceTableIndex.BigTable
-		case "coldTable":
-			dd = pub.InspectionResult.DatabasePerformance.PerformanceTableIndex.ColdTable
-		case "tableCharset":
-			dd = pub.InspectionResult.DatabaseBaselineCheck.TableDesign.TableCharset
-		case "tableEngine":
-			dd = pub.InspectionResult.DatabaseBaselineCheck.TableDesign.TableEngine
-		case "tableForeign":
-			dd = pub.InspectionResult.DatabaseBaselineCheck.TableDesign.TableForeign
-		case "tableNoPrimaryKey":
-			dd = pub.InspectionResult.DatabaseBaselineCheck.TableDesign.TableNoPrimaryKey
-		case "tableAutoIncrement":
-			dd = pub.InspectionResult.DatabaseBaselineCheck.ColumnDesign.TableAutoIncrement
-		case "tableBigColumns":
-			dd = pub.InspectionResult.DatabaseBaselineCheck.ColumnDesign.TableBigColumns
-		case "indexColumnIsNull":
-			dd = pub.InspectionResult.DatabaseBaselineCheck.IndexColumnsDesign.IndexColumnIsNull
-		case "indexColumnIsEnumSet":
-			dd = pub.InspectionResult.DatabaseBaselineCheck.IndexColumnsDesign.IndexColumnIsEnumSet
-		case "indexColumnIsBlobText":
-			dd = pub.InspectionResult.DatabaseBaselineCheck.IndexColumnsDesign.IndexColumnIsBlobText
-		case "tableIncludeRepeatIndex":
-			dd = pub.InspectionResult.DatabaseBaselineCheck.IndexColumnsDesign.IndexColumnIsRepeatIndex
-		case "tableProcedure":
-			dd = pub.InspectionResult.DatabaseBaselineCheck.ProcedureTriggerDesign.TableProcedure
-		case "tableFunc":
-			dd = pub.InspectionResult.DatabaseBaselineCheck.ProcedureTriggerDesign.TableFunc
-		case "tableTrigger":
-			dd = pub.InspectionResult.DatabaseBaselineCheck.ProcedureTriggerDesign.TableTrigger
-		case "anonymousUsers":
-			dd = pub.InspectionResult.DatabaseSecurity.UserPriDesign.AnonymousUsers
-		case "emptyPasswordUser":
-			dd = pub.InspectionResult.DatabaseSecurity.UserPriDesign.EmptyPasswordUser
-		case "rootUserRemoteLogin":
-			dd = pub.InspectionResult.DatabaseSecurity.UserPriDesign.RootUserRemoteLogin
-		case "normalUserConnectionUnlimited":
-			dd = pub.InspectionResult.DatabaseSecurity.UserPriDesign.NormalUserConnectionUnlimited
-		case "userPasswordSame":
-			dd = pub.InspectionResult.DatabaseSecurity.UserPriDesign.UserPasswordSame
-		case "normalUserDatabaseAllPrivilages":
-			dd = pub.InspectionResult.DatabaseSecurity.UserPriDesign.NormalUserDatabaseAllPrivilages
-		case "normalUserSuperPrivilages":
-			dd = pub.InspectionResult.DatabaseSecurity.UserPriDesign.NormalUserSuperPrivilages
-		case "databasePort":
-			dd = pub.InspectionResult.DatabaseSecurity.PortDesign.DatabasePort
-		}
-		cc = out.tmpcc(dd)
-		if cc != nil{
-			tmpEQ ++
-			cd := append([]string{strconv.Itoa(tmpEQ)},cc...)
-			bc = append(bc,cd)
+		if vi,ok := abcd[CheckTypeSliect[i]];ok{
+			if vi != nil{
+				tmpeqInt ++
+				if tmpeqInt <10{
+					tmpeqStr = fmt.Sprintf("0%d",tmpeqInt)
+				}else{
+					tmpeqStr = fmt.Sprintf("%d",tmpeqInt)
+				}
+				cc = out.tmpcc(vi)
+				if cc != nil{
+					cd := append([]string{tmpeqStr},cc...)
+					bc = append(bc,cd)
+				}
+			}
 		}
 	}
 	return bc
@@ -171,83 +141,20 @@ func (out *OutputWayStruct) tmpResultSummary(CheckTypeSliect []string) [][]strin
 
 func (out *OutputWayStruct) ResultSummaryStringSlice()  [][]string{
 	var resultProfile [][]string
-	aa := out.tmpaa("01","configParameter",pub.InspectionResult.DatabaseConfigCheck.ConfigParameter)
-	resultProfile = append(resultProfile,aa)
-	ba := out.tmpaa("02","tableCharset",pub.InspectionResult.DatabaseBaselineCheck.TableDesign.TableCharset)
-	resultProfile = append(resultProfile,ba)
-	ca := out.tmpaa("03","tableEngine",pub.InspectionResult.DatabaseBaselineCheck.TableDesign.TableEngine)
-	resultProfile = append(resultProfile,ca)
-	da := out.tmpaa("04","tableNoPrimaryKey",pub.InspectionResult.DatabaseBaselineCheck.TableDesign.TableNoPrimaryKey)
-	resultProfile = append(resultProfile,da)
-	ea := out.tmpaa("05","tableForeign",pub.InspectionResult.DatabaseBaselineCheck.TableDesign.TableForeign)
-	resultProfile = append(resultProfile,ea)
-	fa := out.tmpaa("06","tableAutoIncrement",pub.InspectionResult.DatabaseBaselineCheck.ColumnDesign.TableAutoIncrement)
-	resultProfile = append(resultProfile,fa)
-	ga := out.tmpaa("07","tableBigColumns",pub.InspectionResult.DatabaseBaselineCheck.ColumnDesign.TableBigColumns)
-	resultProfile = append(resultProfile,ga)
-	ha := out.tmpaa("08","indexColumnIsNull",pub.InspectionResult.DatabaseBaselineCheck.IndexColumnsDesign.IndexColumnIsNull)
-	resultProfile = append(resultProfile,ha)
-	ia := out.tmpaa("09","indexColumnIsEnumSet",pub.InspectionResult.DatabaseBaselineCheck.IndexColumnsDesign.IndexColumnIsEnumSet)
-	resultProfile = append(resultProfile,ia)
-	ja := out.tmpaa("10","indexColumnIsBlobText",pub.InspectionResult.DatabaseBaselineCheck.IndexColumnsDesign.IndexColumnIsBlobText)
-	resultProfile = append(resultProfile,ja)
-	ka := out.tmpaa("11","tableIncludeRepeatIndex",pub.InspectionResult.DatabaseBaselineCheck.IndexColumnsDesign.IndexColumnIsRepeatIndex)
-	resultProfile = append(resultProfile,ka)
-	la := out.tmpaa("12","tableProcedure",pub.InspectionResult.DatabaseBaselineCheck.ProcedureTriggerDesign.TableProcedure)
-	resultProfile = append(resultProfile,la)
-	ma := out.tmpaa("13","tableFunc",pub.InspectionResult.DatabaseBaselineCheck.ProcedureTriggerDesign.TableFunc)
-	resultProfile = append(resultProfile,ma)
-	na := out.tmpaa("14","tableTrigger",pub.InspectionResult.DatabaseBaselineCheck.ProcedureTriggerDesign.TableTrigger)
-	resultProfile = append(resultProfile,na)
-	oa := out.tmpaa("15","anonymousUsers",pub.InspectionResult.DatabaseSecurity.UserPriDesign.AnonymousUsers)
-	resultProfile = append(resultProfile,oa)
-	pa := out.tmpaa("16","emptyPasswordUser",pub.InspectionResult.DatabaseSecurity.UserPriDesign.EmptyPasswordUser)
-	resultProfile = append(resultProfile,pa)
-	qa := out.tmpaa("17","rootUserRemoteLogin",pub.InspectionResult.DatabaseSecurity.UserPriDesign.RootUserRemoteLogin)
-	resultProfile = append(resultProfile,qa)
-	ra := out.tmpaa("18","normalUserConnectionUnlimited",pub.InspectionResult.DatabaseSecurity.UserPriDesign.NormalUserConnectionUnlimited)
-	resultProfile = append(resultProfile,ra)
-	ta := out.tmpaa("19","userPasswordSame",pub.InspectionResult.DatabaseSecurity.UserPriDesign.UserPasswordSame)
-	resultProfile = append(resultProfile,ta)
-	ua := out.tmpaa("20","normalUserDatabaseAllPrivilages",pub.InspectionResult.DatabaseSecurity.UserPriDesign.NormalUserDatabaseAllPrivilages)
-	resultProfile = append(resultProfile,ua)
-	va := out.tmpaa("21","normalUserSuperPrivilages",pub.InspectionResult.DatabaseSecurity.UserPriDesign.NormalUserSuperPrivilages)
-	resultProfile = append(resultProfile,va)
-	wa := out.tmpaa("22","databasePort",pub.InspectionResult.DatabaseSecurity.PortDesign.DatabasePort)
-	resultProfile = append(resultProfile,wa)
-	xa := out.tmpaa("23","binlogDiskUsageRate",pub.InspectionResult.DatabasePerformance.PerformanceStatus.BinlogDiskUsageRate)
-	resultProfile = append(resultProfile,xa)
-	ya := out.tmpaa("24","historyConnectionMaxUsageRate",pub.InspectionResult.DatabasePerformance.PerformanceStatus.HistoryConnectionMaxUsageRate)
-	resultProfile = append(resultProfile,ya)
-	za := out.tmpaa("25","tmpDiskTableUsageRate",pub.InspectionResult.DatabasePerformance.PerformanceStatus.TmpDiskTableUsageRate)
-	resultProfile = append(resultProfile,za)
-	ab := out.tmpaa("26","tmpDiskfileUsageRate",pub.InspectionResult.DatabasePerformance.PerformanceStatus.TmpDiskfileUsageRate)
-	resultProfile = append(resultProfile,ab)
-	bb := out.tmpaa("27","innodbBufferPoolUsageRate",pub.InspectionResult.DatabasePerformance.PerformanceStatus.InnodbBufferPoolUsageRate)
-	resultProfile = append(resultProfile,bb)
-	cb := out.tmpaa("28","innodbBufferPoolDirtyPagesRate",pub.InspectionResult.DatabasePerformance.PerformanceStatus.InnodbBufferPoolDirtyPagesRate)
-	resultProfile = append(resultProfile,cb)
-	db := out.tmpaa("29","innodbBufferPoolHitRate",pub.InspectionResult.DatabasePerformance.PerformanceStatus.InnodbBufferPoolHitRate)
-	resultProfile = append(resultProfile,db)
-	eb := out.tmpaa("30","openFileUsageRate",pub.InspectionResult.DatabasePerformance.PerformanceStatus.OpenFileUsageRate)
-	resultProfile = append(resultProfile,eb)
-	fb := out.tmpaa("31","openTableCacheUsageRate",pub.InspectionResult.DatabasePerformance.PerformanceStatus.OpenTableCacheUsageRate)
-	resultProfile = append(resultProfile,fb)
-	gb := out.tmpaa("32","openTableCacheOverflowsUsageRate",pub.InspectionResult.DatabasePerformance.PerformanceStatus.OpenTableCacheOverflowsUsageRate)
-	resultProfile = append(resultProfile,gb)
-	hb := out.tmpaa("33","selectScanUsageRate",pub.InspectionResult.DatabasePerformance.PerformanceStatus.SelectScanUsageRate)
-	resultProfile = append(resultProfile,hb)
-	ib := out.tmpaa("34","selectfullJoinScanUsageRate",pub.InspectionResult.DatabasePerformance.PerformanceStatus.SelectfullJoinScanUsageRate)
-	resultProfile = append(resultProfile,ib)
-	jb := out.tmpaa("35","tableAutoPrimaryKeyUsageRate",pub.InspectionResult.DatabasePerformance.PerformanceTableIndex.TableAutoPrimaryKeyUsageRate)
-	resultProfile = append(resultProfile,jb)
-	kb := out.tmpaa("36","tableRows",pub.InspectionResult.DatabasePerformance.PerformanceTableIndex.TableRows)
-	resultProfile = append(resultProfile,kb)
-	lb := out.tmpaa("37","diskFragmentationRate",pub.InspectionResult.DatabasePerformance.PerformanceTableIndex.DiskFragmentationRate)
-	resultProfile = append(resultProfile,lb)
-	mb := out.tmpaa("38","bigTable",pub.InspectionResult.DatabasePerformance.PerformanceTableIndex.BigTable)
-	resultProfile = append(resultProfile,mb)
-	nb := out.tmpaa("39","coldTable",pub.InspectionResult.DatabasePerformance.PerformanceTableIndex.ColdTable)
-	resultProfile = append(resultProfile,nb)
+	tmpInit()
+	var tmpeqInt int
+	var tmpeqStr string
+	for k,v := range abcd {
+		if v != nil{
+			tmpeqInt ++
+			if tmpeqInt <10{
+				tmpeqStr = fmt.Sprintf("0%d",tmpeqInt)
+			}else{
+				tmpeqStr = fmt.Sprintf("%d",tmpeqInt)
+			}
+			tmpRes := out.tmpaa(tmpeqStr,k,v)
+			resultProfile = append(resultProfile,tmpRes)
+		}
+	}
 	return resultProfile
 }
