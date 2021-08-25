@@ -48,7 +48,7 @@ func (out *OutputWayStruct) OutPdf() {
 
 	//标题三
 	out.pdfPrimaryTitleModule(pdf,"三、巡检结果详情")  //TNP
-	w3 := []float64{10,60.0,30.0,20.0, 70.0}  //定义每行表格的宽度
+	w3 := []float64{10,60.0,35.0,20.0, 70.0}  //定义每行表格的宽度
 	cd := []string{" ","巡检项名称","阈值","错误码","异常相关信息"}
 	pdf.SetFont("simfang", "", 10)
 	pdf.MultiCell(0, 5, string("3.1 巡检数据库环境"), "", "", false)
