@@ -356,11 +356,10 @@ func (baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckIndexColumnDesign
 		}
 	}
 }
-//存储过程、存储函数、触发器检查限制
+//存储过程、存储函数、触发器、视图、分区表检查限制
 func(baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckProcedureTriggerDesign(){
 	pub.Loggs.Info("Begin a baseline check to checking whether the database uses stored procedures, stored functions, or triggers")
-	//var c []map[string]string
-	if vi,okk := pub.BaselineCanCheck["tableprocedurefunctrigger"];okk {
+	if vi,okk := pub.BaselineCanCheck["tableprocedurefunctriggerviews"];okk {
 		for i := range pub.InformationSchemaRoutines {
 			cc := pub.InformationSchemaRoutines[i]
 			var d = make(map[string]string)
@@ -390,6 +389,23 @@ func(baselineCheck *DatabaseBaselineCheckStruct) BaselineCheckProcedureTriggerDe
 				pub.Loggs.Error(fmt.Sprintf(" BL4-PT02 The current database uses a trigger. The information is as follows: database: \"%s\" triggerName: \"%s\"  user: \"%s\"  create time:\"%s\"", dd["TRIGGER_SCHEMA"], dd["TRIGGER_NAME"], dd["DEFINER"], dd["CREATED"]))
 			}
 		}
+		//检查是否使用试图
+		for i := range pub.InformationSchemaViews{
+			var d = make(map[string]string)
+			dd := pub.InformationSchemaViews[i]
+			d["database"] = dd["TABLE_SCHEMA"].(string)
+			if strings.Contains(strings.ToLower(vi),"views") && dd["VIEW_DEFINITION"] != nil {
+				d["checkStatus"] = "abnormal" //异常状态
+				d["checkType"] = "tableViews"
+				d["threshold"] = fmt.Sprintf("%s","views")
+				d["errorCode"] = "BL4-PT03"
+				d["currentValue"] = fmt.Sprintf("%s.%s", dd["TABLE_SCHEMA"], dd["TABLE_NAME"])
+				pub.InspectionResult.DatabaseBaselineCheck.ProcedureTriggerDesign.TableView = append(pub.InspectionResult.DatabaseBaselineCheck.ProcedureTriggerDesign.TableView, d)
+				pub.Loggs.Error(fmt.Sprintf(" BL4-PT02 The current database uses a trigger. The information is as follows: database: \"%s\" triggerName: \"%s\"  DEFINER: \"%s\"  ", dd["TABLE_SCHEMA"], dd["TABLE_NAME"], dd["DEFINER"]))
+			}
+		}
 	}
+
+
 	pub.Loggs.Info("Check whether the database is completed using stored programs, stored functions, and stored triggers")
 }

@@ -58,6 +58,7 @@ type BaselineCheckProcedureTriggerDesignResultStruct struct{
 	TableProcedure []map[string]string
 	TableTrigger []map[string]string
 	TableFunc []map[string]string
+	TableView []map[string]string
 }
 type BaselineCheckUserPriDesignResultStruct struct{
 	AnonymousUsers []map[string]string
@@ -123,13 +124,14 @@ var DatabasePerformanceStatusCheckResult = &DatabasePerformanceStatusCheckResult
 var DatabasePerformanceTableIndexCheckResult = &DatabasePerformanceTableIndexCheckResultStruct{}
 
 //数据交互变量
-var strSql string
-var GlobalVariables = make(map[string]string)
-var GlobalStatus = make(map[string]string)
-var InformationSchemaTablesData, InformationSchemaColumnsData,InformationSchemaCollationsData  []map[string]interface{}
-var InformationSchemaKeyColumnUsage,InformationSchemaStatistics,InformationSchemaRoutines []map[string]interface{}
-var InformationSchemaTriggers,MysqlUser []map[string]interface{}
-
+var (
+    strSql string
+    GlobalVariables = make(map[string]string)
+    GlobalStatus = make(map[string]string)
+    InformationSchemaTablesData, InformationSchemaColumnsData,InformationSchemaCollationsData  []map[string]interface{}
+    InformationSchemaKeyColumnUsage,InformationSchemaStatistics,InformationSchemaRoutines []map[string]interface{}
+    InformationSchemaTriggers,MysqlUser,InformationSchemaViews []map[string]interface{}
+)
 //检测耗时相关变量
 var CheckBeginTime,CheckEndTime string
 var CheckTimeConsuming int64
@@ -304,6 +306,7 @@ func QueryDbDateInit(){
 	InformationSchemaTriggers = DBexecInter.DBQueryDateJson(strSql)
 	strSql = fmt.Sprintf("select user,host,authentication_string password from mysql.user")
 	MysqlUser = DBexecInter.DBQueryDateJson(strSql)
-
+	strSql = fmt.Sprintf("select * from information_schema.VIEWS where TABLE_SCHEMA not in (%s);",ignoreTableSchema)
+	InformationSchemaViews = DBexecInter.DBQueryDateJson(strSql)
 
 }

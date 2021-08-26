@@ -190,8 +190,8 @@ inspectionConfInput:
       subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
     - checkconfiguration: tableIncludeRepeatIndex               #检测表中是否存在冗余索引(请勿修改)
       subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
-    - checkconfiguration: tableProcedureFuncTrigger             #检测存储过程、函数、触发器使用情况(请勿修改)
-      checkThreshold: procedure,function,trigger                #判断是否使用存储过程、存储函数、触发器
+    - checkconfiguration: tableProcedureFuncTriggerViews        #检测存储过程、函数、触发器使用情况(请勿修改)
+      checkThreshold: procedure,function,trigger,views          #判断是否使用存储过程、存储函数、触发器,视图
       subCheckSwitch: true                                      #该检测项的开关，为true则检测该项，为false则不检测该项
 
   databaseSecurity:                                             #是否巡检数据库安全，值为true或false

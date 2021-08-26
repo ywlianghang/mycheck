@@ -59,6 +59,7 @@ func tmpInit() {
 	abcd["tableIncludeRepeatIndex"] = pub.InspectionResult.DatabaseBaselineCheck.IndexColumnsDesign.IndexColumnIsRepeatIndex
 	abcd["tableProcedureFunc"] = pub.InspectionResult.DatabaseBaselineCheck.ProcedureTriggerDesign.TableProcedure
 	abcd["tableTrigger"] = pub.InspectionResult.DatabaseBaselineCheck.ProcedureTriggerDesign.TableTrigger
+	abcd["tableViews"] = pub.InspectionResult.DatabaseBaselineCheck.ProcedureTriggerDesign.TableView
 	abcd["anonymousUsers"] = pub.InspectionResult.DatabaseSecurity.UserPriDesign.AnonymousUsers
 	abcd["emptyPasswordUser"] = pub.InspectionResult.DatabaseSecurity.UserPriDesign.EmptyPasswordUser
 	abcd["rootUserRemoteLogin"] = pub.InspectionResult.DatabaseSecurity.UserPriDesign.RootUserRemoteLogin
@@ -84,6 +85,7 @@ func tmpInit() {
 	abcd["diskFragmentationRate"] = pub.InspectionResult.DatabasePerformance.PerformanceTableIndex.DiskFragmentationRate
 	abcd["bigTable"] = pub.InspectionResult.DatabasePerformance.PerformanceTableIndex.BigTable
 	abcd["coldTable"] = pub.InspectionResult.DatabasePerformance.PerformanceTableIndex.ColdTable
+
 }
 func (out *OutputWayStruct) tmpcc(checkRulest []map[string]string) []string {
 	var bc []string
@@ -114,7 +116,6 @@ func (out *OutputWayStruct) tmpcc(checkRulest []map[string]string) []string {
 
 func (out *OutputWayStruct) tmpResultSummary(CheckTypeSliect []string) [][]string{
 	var bc [][]string
-	//var dd []map[string]string
 	var cc []string
 	tmpInit()
 	var tmpeqInt int

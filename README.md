@@ -61,12 +61,9 @@
         1.4.05 检查主键自增列是否为bigint（巡检项：tableAutoIncrement）
         1.4.05 检查表中是否存在大字段blob、text、varchar(8099)、timestamp数据类型（巡检项：tableBigColumns）
         1.4.06 检查索引列是否允许为空（巡检项：indexColumnIsNull）
-        1.4.07 检查索引列是否建立在enum或set类型上（巡检项：indexColumnIsEnumSet）
-        1.4.08 检查索引列是否建立在blob或text上（巡检项：indexColumnIsBlobText）
-        1.4.09 检查表中是否存在冗余索引（左匹配包含）（巡检项：tableIncludeRepeatIndex）
-        1.4.10 检查库中是否存在存储过程（巡检项：tableProcedure）
-        1.4.11 检查库中是否存在存储函数（巡检项：tableFunc）
-        1.4.12 检查库中是否存在触发器（巡检项：tableTrigger）
+        1.4.07 检查索引列是否建立在enum、set、blob、text类型上（巡检项：indexColumnType）
+        1.4.08 检查表中是否存在冗余索引（左匹配包含）（巡检项：tableIncludeRepeatIndex）
+        1.4.09 检查库中是否存在存储过程、存储函数、触发器、视图（巡检项：tableProcedureFuncTriggerViews）
 
       1.5 数据库安全检查
         1.5.01 检查实例是否存在匿名用户（巡检项：anonymousUsers）

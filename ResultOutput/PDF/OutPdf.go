@@ -78,7 +78,7 @@ func (out *OutputWayStruct) OutPdf() {
 	pdf = out.pdfTableBodyColorsFormat(pdf,w3,cd)
 	tmpCheckTypeSliect = []string{"tableCharset","tableEngine","tableForeign","tableNoPrimaryKey","tableAutoIncrement",
 		"tableBigColumns","indexColumnIsNull","indexColumnType","tableIncludeRepeatIndex",
-	"tableProcedureFunc","tableTrigger"}
+	"tableProcedureFunc","tableTrigger","tableViews"}
 	tmpResultBaselineResult := out.tmpResultSummary(tmpCheckTypeSliect)
 	pdf = out.pdfTableInsert(pdf,w3,tmpResultBaselineResult)
 	pdf.Ln(-1)
